@@ -6,11 +6,11 @@ import "@nilfoundation/smart-contracts/contracts/Wallet.sol";
 import "./interfaces/IXWallet.sol";
 
 contract XWallet is IXWallet, Wallet {
-    mapping(address spender => mapping(uint256 tokenId => uint256 amount)) private s_allowances;
+    mapping(address spender => mapping(CurrencyId tokenId => uint256 amount)) private s_allowances;
 
     constructor(bytes memory _pubkey) payable Wallet(_pubkey) {}
 
-    function allowance(address _spender, uint256 _token) public view returns (uint256) {
+    function allowance(address _spender, CurrencyId _token) public view returns (uint256) {
         return s_allowances[_spender][_token];
     }
 

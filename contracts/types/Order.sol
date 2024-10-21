@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {CurrencyId} from "@nilfoundation/smart-contracts/contracts/NilCurrencyBase.sol";
+
+// TODO remove
 enum OrderState {
     PLACED,
     BUY_INIT,
@@ -11,7 +14,7 @@ enum OrderState {
 struct Order {
     address seller;
     address buyer;
-    uint256 currencyId;
+    CurrencyId currencyId;
     uint256 price;
     OrderState state;
 }
