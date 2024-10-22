@@ -85,6 +85,10 @@ describe("Marketplace", () => {
       args: [nftId],
     });
 
+    const buyerBalanceBeforeBuy = (await buyer.getCurrencies())[
+      todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+    ];
+
     const buy = await market.connect(buyer).sendMessage(
       {
         functionName: "buy",
@@ -94,7 +98,6 @@ describe("Marketplace", () => {
         feeCredit: 300_000_000n,
         tokens: [{ id: buyerCurrency, amount: PRICE }],
       },
-      false,
     );
 
     //////// ASSERT ////////
@@ -129,14 +132,36 @@ describe("Marketplace", () => {
     const sellerCurrencies = await seller.getCurrencies();
     const buyerCurrencies = await buyer.getCurrencies();
 
-    // TODO expect currencies
+    expect(
+      sellerCurrencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(nftId)
+      ],
+    ).to.eq(0n);
+    expect(
+      sellerCurrencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ],
+    ).to.eq(PRICE);
+    expect(
+      buyerCurrencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(nftId)
+      ],
+    ).to.eq(1n);
+    expect(
+      buyerCurrencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ],
+    ).to.eq(buyerBalanceBeforeBuy - PRICE);
   });
 
   it("user can deposit and withdraw tokens", async () => {
     const DEPOSIT = 100n;
 
     let currencies = await buyer.getCurrencies();
-    const balanceBefore = currencies[buyerCurrency];
+    const balanceBefore =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     const deposit = await market.connect(buyer).sendMessage(
       {
         functionName: "deposit",
@@ -150,8 +175,10 @@ describe("Marketplace", () => {
 
     // Wallet's balance decreased
     currencies = await buyer.getCurrencies();
-    const ccc = await buyer.client.getCurrencies(buyer.address);
-    const balanceAfterDeposit = currencies[buyerCurrency];
+    const balanceAfterDeposit =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     expect(balanceAfterDeposit).to.eq(balanceBefore - DEPOSIT);
 
     // Virtual balance increased
@@ -173,7 +200,10 @@ describe("Marketplace", () => {
 
     // Wallet's balance increased
     currencies = await buyer.getCurrencies();
-    const balanceAfterWithdraw = currencies[buyerCurrency];
+    const balanceAfterWithdraw =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     expect(balanceAfterWithdraw).eq(balanceBefore);
 
     // Virtual balance decreased
@@ -184,7 +214,7 @@ describe("Marketplace", () => {
     expect(virtualBalance).eq(0n);
   });
 
-  it("if withdraw reverts market will top up wallet's virtual balance", async () => {
+  it("if withdraw reverts, market will top up wallet's virtual balance", async () => {
     // Arrange
     const DEPOSIT = 50n;
     const revertWalletArtifacts = await artifacts.readArtifact(
@@ -215,7 +245,10 @@ describe("Marketplace", () => {
 
     // Act
     let currencies = await revertWallet.getCurrencies();
-    const balanceBefore = currencies[buyerCurrency];
+    const balanceBefore =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     const deposit = await market.connect(revertWallet).sendMessage(
       {
         functionName: "deposit",
@@ -235,7 +268,10 @@ describe("Marketplace", () => {
     expect(virtualBalance).eq(DEPOSIT);
 
     currencies = await revertWallet.getCurrencies();
-    const balanceAfterDeposit = currencies[buyerCurrency];
+    const balanceAfterDeposit =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     expect(balanceAfterDeposit).to.eq(balanceBefore - DEPOSIT);
 
     const withdrawResult = await market.connect(revertWallet).sendMessage(
@@ -252,7 +288,10 @@ describe("Marketplace", () => {
     //Assert
 
     currencies = await revertWallet.getCurrencies();
-    const balanceAfterWithdraw = currencies[buyerCurrency];
+    const balanceAfterWithdraw =
+      currencies[
+        todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(buyerCurrency)
+      ];
     // Wallet's didn't receive withdrawn tokens
     expect(balanceAfterWithdraw).eq(balanceAfterDeposit);
 
@@ -264,3 +303,7 @@ describe("Marketplace", () => {
     expect(virtualBalance).eq(DEPOSIT);
   });
 });
+
+function todoHackRemoveMeWhenNilFixedConvertAddressToCurrency(address: string) {
+  return address.replace("0x000", "0x").toLowerCase();
+}
