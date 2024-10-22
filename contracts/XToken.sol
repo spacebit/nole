@@ -10,10 +10,11 @@ contract XToken is NilBase, NilCurrencyBase {
 
     constructor(address _owner, string memory _name, uint256 _tokenId, address _collectionAddress) payable {
         mintCurrencyInternal(1);
-        sendCurrencyInternal(_owner, getCurrencyId(), 1);
 
         s_collectionAddress = _collectionAddress;
         s_tokenId = _tokenId;
+
+        sendCurrencyInternal(_owner, getCurrencyId(), 1);
     }
 
     receive() external payable {}
