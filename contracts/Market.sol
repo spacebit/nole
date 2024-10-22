@@ -91,7 +91,6 @@ contract Market is NilBase {
     }
 
     function handleWithdrawResult(bool _success, bytes memory, bytes memory _context) public payable onlyResponse {
-        // TODO not safe to use because it is public, awaiting callback restriction from nil
         (Nil.Token memory token, address owner) = abi.decode(_context, (Nil.Token, address));
 
         if (!_success) _deposit(owner, token.id, token.amount);

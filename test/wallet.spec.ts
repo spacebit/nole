@@ -1,20 +1,8 @@
-import { artifacts } from "hardhat";
-import {
-  Faucet,
-  Hex,
-  HttpTransport,
-  PublicClient,
-  toHex,
-} from "@nilfoundation/niljs";
-import { expect } from "chai";
-import { XWallet, XContract } from "@spacebit/simple-nil";
-import config from "../config";
-import { Market$Type } from "../artifacts/contracts/Market.sol/Market";
-
+// TODO
 describe("XWallet", () => {
-  it("Can approve tokens for transfer", async () => {});
+  it.skip("Can approve tokens for transfer", async () => {});
 
-  it("Approved account can transferFrom", async () => {});
+  it.skip("Approved account can transferFrom", async () => {});
 
-  it("Cannot transferFrom more than allowed", async () => {});
+  it.skip("Cannot transferFrom more than allowed", async () => {});
 });
