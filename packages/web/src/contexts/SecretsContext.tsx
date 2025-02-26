@@ -1,16 +1,16 @@
 // Because there are no wallet extensions we store secrets in the local storage
-// This file should be eliminated in the future
+// All this code should be eliminated in the future
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface WalletContextType {
+interface SecretsContextType {
   privateKey: string;
   walletAddress: string;
-  setWallet: (privateKey: string, walletAddress: string) => void;
-  clearWallet: () => void;
+  setSecrets: (privateKey: string, walletAddress: string) => void;
+  clearSecrets: () => void;
 }
 
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
+const SecretsContext = createContext<SecretsContextType | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [privateKey, setPrivateKey] = useState('');
@@ -29,7 +29,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   // Update state and localStorage with wallet details.
-  const setWallet = (newPrivateKey: string, newWalletAddress: string) => {
+  const setSecrets = (newPrivateKey: string, newWalletAddress: string) => {
     setPrivateKey(newPrivateKey);
     setWalletAddress(newWalletAddress);
     localStorage.setItem('wallet_private_key', newPrivateKey);
@@ -37,7 +37,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Clear wallet details from state and localStorage.
-  const clearWallet = () => {
+  const clearSecrets = () => {
     setPrivateKey('');
     setWalletAddress('');
     localStorage.removeItem('wallet_private_key');
@@ -45,14 +45,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <WalletContext.Provider value={{ privateKey, walletAddress, setWallet, clearWallet }}>
+    <SecretsContext.Provider value={{ privateKey, walletAddress, setSecrets, clearSecrets }}>
       {children}
-    </WalletContext.Provider>
+    </SecretsContext.Provider>
   );
 };
 
-export const useWallet = (): WalletContextType => {
-  const context = useContext(WalletContext);
+export const useSecrets = (): SecretsContextType => {
+  const context = useContext(SecretsContext);
   if (!context) {
     throw new Error('useWallet must be used within a WalletProvider');
   }

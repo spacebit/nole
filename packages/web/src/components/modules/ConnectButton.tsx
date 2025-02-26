@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import Button from "../ui/Button";
 import Modal from "./Modal";
 import WalletForm from "./WalletForm";
-import { useWallet } from "../../contexts/SecretsContext";
+import { useSecrets } from "../../contexts/SecretsContext";
 import { shortenAddress } from "@/lib/utils";
 
 const ConnectButton: React.FC = () => {
-  const { walletAddress } = useWallet();
+  const { walletAddress } = useSecrets();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);

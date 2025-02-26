@@ -1,6 +1,6 @@
 "use client";
 
-import { useWallet } from "@/contexts/SecretsContext";
+import { useSecrets } from "@/contexts/SecretsContext";
 import React, { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -13,9 +13,9 @@ const WalletForm: React.FC<WalletFormProps> = ({ onClose }) => {
   const {
     privateKey: contextKey,
     walletAddress: contextAddress,
-    setWallet,
-    clearWallet,
-  } = useWallet();
+    setSecrets,
+    clearSecrets,
+  } = useSecrets();
   const [privateKey, setPrivateKeyState] = useState("");
   const [walletAddress, setWalletAddressState] = useState("");
 
@@ -27,7 +27,7 @@ const WalletForm: React.FC<WalletFormProps> = ({ onClose }) => {
 
   const handleSave = () => {
     if (privateKey && walletAddress) {
-      setWallet(privateKey, walletAddress);
+      setSecrets(privateKey, walletAddress);
       if (onClose) onClose();
     }
   };
@@ -35,7 +35,7 @@ const WalletForm: React.FC<WalletFormProps> = ({ onClose }) => {
   const handleForget = () => {
     setPrivateKeyState("");
     setWalletAddressState("");
-    clearWallet();
+    clearSecrets();
     if (onClose) onClose();
   };
 
