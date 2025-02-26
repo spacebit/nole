@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { HttpTransport, PublicClient } from "@nilfoundation/niljs";
 // import { useSecrets } from "./SecretsContext";
-import { config } from "@/lib/config";
 
 interface NilContextType {
   client: PublicClient | undefined;
@@ -17,7 +16,7 @@ const NilProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     const client = new PublicClient({
       transport: new HttpTransport({
-        endpoint: config.rpc,
+        endpoint: process.env.NEXT_PUBLIC_RPC!,
       }),
       shardId: 1,
     });
