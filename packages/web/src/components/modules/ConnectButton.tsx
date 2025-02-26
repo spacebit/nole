@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Button from "../ui/Button";
 import Modal from "./Modal";
 import WalletForm from "./WalletForm";
-import { useWallet } from "../../contexts/WalletContext";
+import { useWallet } from "../../contexts/SecretsContext";
 import { shortenAddress } from "@/lib/utils";
 
 const ConnectButton: React.FC = () => {

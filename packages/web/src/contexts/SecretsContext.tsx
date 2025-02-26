@@ -1,3 +1,6 @@
+// Because there are no wallet extensions we store secrets in the local storage
+// This file should be eliminated in the future
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface WalletContextType {

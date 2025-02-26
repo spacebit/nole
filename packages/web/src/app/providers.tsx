@@ -1,6 +1,6 @@
 "use client";
 
-import { WalletProvider } from "@/contexts/WalletContext";
+import { WalletProvider } from "@/contexts/SecretsContext";
 import { type ReactNode } from "react";
 
 export function Providers(props: { children: ReactNode }) {
