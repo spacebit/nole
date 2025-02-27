@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Text variant="h1">Welcome to the Nole</Text>
+      <Text variant="h1">Welcome to Nole</Text>
       {account && <Text variant="h3">{account.address}</Text>}
       {balance && <Text variant="p">Your balance is ${balance}</Text>}
     </>
