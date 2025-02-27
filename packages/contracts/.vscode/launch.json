@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "TEST",
+      "type": "node",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["hardhat", "test", "--no-compile", "${file}"]
+    },
+    {
+      "name": "SCRIPT",
+      "type": "node",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["hardhat", "run", "--no-compile", "${file}"]
+    }
+  ]
+}

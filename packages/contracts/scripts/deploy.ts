@@ -10,7 +10,7 @@ import {
 import config from "../utils/config";
 import artifacts from "../artifacts/contracts/Lock.sol/Lock.json";
 
-task("deploy").setAction(async (taskArgs, _) => {
+const deploy = async () => {
   const client = new PublicClient({
     transport: new HttpTransport({ endpoint: config.rpc }),
   });
@@ -24,10 +24,13 @@ task("deploy").setAction(async (taskArgs, _) => {
 
   const { hash } = await account.deployContract({
     shardId: 1,
-    bytecode: artifacts.bytecode as Hex,
-    salt: 1n,
+    bytecode: artifacts.bytecode as Hex,    
+    salt: BigInt(Date.now()),
+    // abi: artifacts.abi,
   });
 
   const receipt = await waitTillCompleted(client, hash);
   receipt.forEach((r) => console.log(r.gasUsed));
-});
+};
+
+deploy().then(() => console.log("done"));
