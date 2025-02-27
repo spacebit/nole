@@ -2,30 +2,16 @@
 
 import Header from "@/components/modules/Header";
 import Text from "@/components/ui/Text";
-import { useNil } from "@/contexts/NilContext";
-import { useEffect, useState } from "react";
+import { useNilWallet } from "@/contexts/NilWalletContext";
 
 export default function Home() {
-  const [balance, setBalance] = useState<bigint | undefined>(undefined);
-  const { account, client } = useNil();
-
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (!account) return;
-      const currentBalance = await account.client.getBalance(account.address);
-
-      setBalance(currentBalance);
-    };
-
-    fetchBalance();
-  }, [account, client]);
+  const { walletAddress } = useNilWallet();
 
   return (
     <>
       <Header />
       <Text variant="h1">Welcome to Nole</Text>
-      {account && <Text variant="h3">{account.address}</Text>}
-      {balance && <Text variant="p">Your balance is ${balance}</Text>}
+      {walletAddress && <Text variant="h3">{walletAddress}</Text>}
     </>
   );
 }
