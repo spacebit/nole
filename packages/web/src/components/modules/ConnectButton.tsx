@@ -1,27 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Button from "../ui/Button";
-import Modal from "./Modal";
-import WalletForm from "./WalletForm";
-import { useSecrets } from "../../contexts/SecretsContext";
 import { shortenAddress } from "@/lib/utils";
+import { useNilWallet } from "@/contexts/NilWalletContext";
+import Link from "next/link";
 
 const ConnectButton: React.FC = () => {
-  const { walletAddress } = useSecrets();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const { walletInstalled, walletAddress, connectWallet, disconnectWallet } =
+    useNilWallet();
 
   return (
     <>
-      <Button onClick={handleOpenModal}>
-        {walletAddress ? shortenAddress(walletAddress) : 'Connect Wallet'}
-      </Button>
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Connect your =nil; wallet">
-        <WalletForm onClose={handleCloseModal} />
-      </Modal>
+      {!walletInstalled() ? (
+        <Button>
+          <Link
+            href="https://chromewebstore.google.com/detail/nil-wallet/kfiailmjchdbjmadbkkldiahpggcjffp?hl=en&authuser=1"
+            target="_blank"
+          >
+            Install wallet
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          variant={walletAddress ? "danger" : "primary"}
+          onClick={walletAddress ? disconnectWallet : connectWallet}
+        >
+          {walletAddress ? shortenAddress(walletAddress) : "Connect Wallet"}
+        </Button>
+      )}
     </>
   );
 };

@@ -13,7 +13,7 @@ interface SecretsContextType {
 
 const SecretsContext = createContext<SecretsContextType | undefined>(undefined);
 
-export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
+export const SecretsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [privateKey, setPrivateKey] = useState<Hex | undefined>(undefined);
