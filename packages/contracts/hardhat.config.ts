@@ -1,5 +1,5 @@
 import type { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-toolbox-viem";
 import config from "./utils/config";
 
 const nilConfig: HardhatUserConfig = {
