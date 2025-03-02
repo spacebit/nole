@@ -11,10 +11,14 @@
   "license": "ISC",
   "devDependencies": {
     "@nilfoundation/smart-contracts": "^0.6.0",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "@types/chai": "^5.0.1",
     "chai": "^5.2.0",
     "dotenv": "^16.4.7",
     "hardhat": "^2.22.19",
     "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "viem": "^2.23.5"
   }
 }

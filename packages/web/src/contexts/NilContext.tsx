@@ -22,13 +22,15 @@ const NilProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [account, setAccount] = useState<SmartAccountV1 | undefined>(undefined);
 
   useEffect(() => {
-    if (!privateKey || !walletAddress) return;
     const client = new PublicClient({
       transport: new HttpTransport({
         endpoint: process.env.NEXT_PUBLIC_RPC!,
       }),
       shardId: 1,
     });
+    setClient(client);
+
+    if (!privateKey || !walletAddress) return;
 
     const signer = new LocalECDSAKeySigner({ privateKey });
     const account = new SmartAccountV1({
@@ -38,7 +40,6 @@ const NilProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       address: walletAddress,
     });
 
-    setClient(client);
     setAccount(account);
   }, [privateKey, walletAddress]);
 
