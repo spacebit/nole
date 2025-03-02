@@ -20,6 +20,7 @@ interface ICollection {
         string memory _tokenURI
     ) external;
 
+    function contractURI() external view returns (string memory);
     function tokenURI(uint256 tokenId) external view returns (string memory);
     // function balanceOf(address owner) external view returns (uint256 balance);
     // function ownerOf(uint256 tokenId) external view returns (address owner);

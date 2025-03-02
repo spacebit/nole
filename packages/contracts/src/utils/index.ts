@@ -1,0 +1,1 @@
+export {expectAllReceiptsSuccess} from "./receipt";

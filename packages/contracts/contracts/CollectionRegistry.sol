@@ -12,9 +12,10 @@ contract CollectionRegistry {
 
     function createCollection(
         string memory _collectionName,
-        string memory _symbol
+        string memory _symbol,
+        string memory _contractURI
     ) external returns (Collection) {
-        Collection newCollection = new Collection(_collectionName, _symbol);
+        Collection newCollection = new Collection(_collectionName, _symbol, _contractURI);
         s_collectionsOf[msg.sender].push(newCollection);
         s_collectionsAmount[msg.sender]++;
         return newCollection;

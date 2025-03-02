@@ -13,13 +13,20 @@ importers:
         version: 0.24.0(rollup@4.34.8)(typescript@5.7.3)
 
   packages/contracts:
+    dependencies:
+      viem:
+        specifier: ^2.23.5
+        version: 2.23.5(typescript@5.7.3)(zod@3.24.2)
     devDependencies:
       '@nilfoundation/smart-contracts':
         specifier: ^0.6.0
         version: 0.6.0
       '@nomicfoundation/hardhat-toolbox-viem':
         specifier: ^3.0.0
-        version: 3.0.0(arv5pu2wj5an2rxzoucrwbbc4u)
+        version: 3.0.0(twwpaoep3wet7pclxvkbujuto4)
+      '@types/chai':
+        specifier: ^5.0.1
+        version: 5.0.1
       chai:
         specifier: ^5.2.0
         version: 5.2.0
@@ -1020,8 +1027,14 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
+  '@types/chai@5.0.1':
+    resolution: {integrity: sha512-5T8ajsg3M/FOncpLYW7sdOcD6yf4+722sze/tc4KQV0P8Z2rAr3SAuHCIkYmYpt8VbcQlnz8SxlOlPQYefe4cA==}
+
   '@types/concat-stream@1.6.1':
     resolution: {integrity: sha512-eHE4cQPoj6ngxBZMvVf6Hw7Mh4jMW4U9lpGmS5GBPB9RYxlFg+CHaVN7ErNY4W9XfLIEn20b4VDYaIrbq0q4uA==}
+
+  '@types/deep-eql@4.0.2':
+    resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -4542,13 +4555,13 @@ snapshots:
       ethereumjs-util: 7.1.5
       hardhat: 2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3)
 
-  '@nomicfoundation/hardhat-toolbox-viem@3.0.0(arv5pu2wj5an2rxzoucrwbbc4u)':
+  '@nomicfoundation/hardhat-toolbox-viem@3.0.0(twwpaoep3wet7pclxvkbujuto4)':
     dependencies:
       '@nomicfoundation/hardhat-ignition-viem': 0.15.10(@nomicfoundation/hardhat-ignition@0.15.10(@nomicfoundation/hardhat-verify@2.0.13(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3)))(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3)))(@nomicfoundation/hardhat-viem@2.0.6(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3))(typescript@5.7.3)(viem@2.23.5(typescript@5.7.3)(zod@3.24.2))(zod@3.24.2))(@nomicfoundation/ignition-core@0.15.10)(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3))(viem@2.23.5(typescript@5.7.3)(zod@3.24.2))
       '@nomicfoundation/hardhat-network-helpers': 1.0.12(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3))
       '@nomicfoundation/hardhat-verify': 2.0.13(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3))
       '@nomicfoundation/hardhat-viem': 2.0.6(hardhat@2.22.19(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.7.3))(typescript@5.7.3))(typescript@5.7.3)(viem@2.23.5(typescript@5.7.3)(zod@3.24.2))(zod@3.24.2)
-      '@types/chai': 4.3.20
+      '@types/chai': 5.0.1
       '@types/chai-as-promised': 7.1.8
       '@types/mocha': 10.0.10
       '@types/node': 22.7.5
@@ -4844,9 +4857,15 @@ snapshots:
 
   '@types/chai@4.3.20': {}
 
+  '@types/chai@5.0.1':
+    dependencies:
+      '@types/deep-eql': 4.0.2
+
   '@types/concat-stream@1.6.1':
     dependencies:
       '@types/node': 20.17.19
+
+  '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.6': {}
 

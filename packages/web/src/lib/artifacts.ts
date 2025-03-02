@@ -1,4 +1,3 @@
-import { Abi } from "viem";
 import {
   abi as collectionAbi,
   bytecode as collectionBytecode,
@@ -14,15 +13,15 @@ import {
 
 export const artifacts = {
   registry: {
-    abi: registryAbi as Abi,
+    abi: registryAbi,
     bytecode: registryBytecode as `0x${string}`,
   },
   collection: {
-    abi: collectionAbi as Abi,
+    abi: collectionAbi,
     bytecode: collectionBytecode as `0x${string}`,
   },
   nft: {
-    abi: nftAbi as Abi,
+    abi: nftAbi,
     bytecode: nftBytecode as `0x${string}`,
   },
 };

@@ -8,14 +8,16 @@ import "./interfaces/INFT.sol";
 contract Collection is ICollection {
     string private s_collectionName;
     string private s_collectionSymbol;
+    string private s_contractURI;
 
     mapping(uint256 tokenId => address tokenAddress) private s_tokens;
     mapping(uint256 tokenId => address) private s_owners;
     mapping(address owner => uint256 amount) private s_balances;
 
-    constructor(string memory _collectionName, string memory _symbol) {
+    constructor(string memory _collectionName, string memory _symbol, string memory _contractURI) {
         s_collectionName = _collectionName;
         s_collectionSymbol = _symbol;
+        s_contractURI = _contractURI;
     }
 
     function name() external view returns (string memory) {
@@ -24,6 +26,10 @@ contract Collection is ICollection {
 
     function symbol() external view returns (string memory) {
         return s_collectionSymbol;
+    }
+
+    function contractURI() public view returns (string memory) {
+        return s_contractURI;
     }
 
     function getNFTAddress(uint256 tokenId) public view returns (address) {
@@ -54,11 +60,4 @@ contract Collection is ICollection {
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
         return INFT(s_tokens[_tokenId]).tokenURI();
     }
-
-    // function changeOwner(uint256 _tokenId, address _prevOwner, address _newOwner) external {
-    //     if (msg.sender != s_tokens[_tokenId]) revert Collection__OnlyToken();
-    //     s_balances[_newOwner]++;
-    //     s_balances[_prevOwner]--;
-    //     s_owners[_tokenId] = _newOwner;
-    // }
 }
