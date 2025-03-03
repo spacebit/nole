@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getContract, Hex } from "@nilfoundation/niljs";
+import { getContract, Hex, waitTillCompleted } from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import {artifacts} from "../lib/artifacts";
 import { useNil } from "@/contexts/NilContext";
@@ -27,18 +27,20 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   }, [client, registryAddress, walletAddress]);
 
-  const createCollection = async (name: string, symbol: string) => {
+  const createCollection = async (name: string, symbol: string, tokenURI: string) => {
+    console.log(">>>>>> ", contract, walletAddress)
     if (!contract || !walletAddress) return null;
     try {
       const tx = {
         to: registryAddress,
-        data: encodeFunctionData({functionName: "createCollection", args: [name, symbol], abi: artifacts.registry.abi}),
+        data: encodeFunctionData({functionName: "createCollection", args: [name, symbol, tokenURI], abi: artifacts.registry.abi}),
       };
       const txHash = await window.nil!.request({
         method: "eth_sendTransaction",
         params: [tx],
       });
       console.log("✅ Collection creation transaction sent:", txHash);
+      await waitTillCompleted(client!, txHash);
       return txHash;
     } catch (error) {
       console.error("❌ Error creating collection:", error);
@@ -48,7 +50,7 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
 
   const getCollectionsOf = async (owner: string) => {
     if (!contract) return null;
-    return contract.read.getCollectionsOf([owner]);
+    return contract.read.getCollectionsOf([owner]) as {name: string, contractURI: string};
   };
 
   const getCollectionsAmountOf = async (owner: string) => {

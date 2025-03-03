@@ -3,9 +3,10 @@ import {
   bytecode as collectionBytecode,
 } from "../../../contracts/artifacts/contracts/Collection.sol/Collection.json";
 import {
-  abi as registryAbi,
+  // abi as registryAbi,
   bytecode as registryBytecode,
 } from "../../../contracts/artifacts/contracts/CollectionRegistry.sol/CollectionRegistry.json";
+import registryAbi from "../../public/registryAbi.json";
 import {
   abi as nftAbi,
   bytecode as nftBytecode,

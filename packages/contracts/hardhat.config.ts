@@ -20,6 +20,9 @@ const nilConfig: HardhatUserConfig = {
       accounts: [config.privateKey],
     },
   },
+  mocha: {
+    timeout: 120_000
+  }
 };
 
 export default nilConfig;
