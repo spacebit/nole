@@ -1,6 +1,6 @@
 "use client";
 
-import NilProvider from "@/contexts/NilClientContext";
+import { NilClientProvider } from "@/contexts/NilClientContext";
 import { NilWalletProvider } from "@/contexts/NilWalletContext";
 import { PinataProvider } from "@/contexts/PinataContext";
 import { UserAssetsProvider } from "@/contexts/UserAssetsContext";
@@ -10,9 +10,9 @@ export function Providers(props: { children: ReactNode }) {
   return (
     <PinataProvider>
       <NilWalletProvider>
-        <NilProvider>
+        <NilClientProvider>
           <UserAssetsProvider>{props.children}</UserAssetsProvider>
-        </NilProvider>
+        </NilClientProvider>
       </NilWalletProvider>
     </PinataProvider>
   );

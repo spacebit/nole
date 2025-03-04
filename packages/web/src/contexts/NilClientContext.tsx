@@ -1,28 +1,40 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { HttpTransport, PublicClient } from "@nilfoundation/niljs";
 
 interface NilClientContextType {
   client: PublicClient | undefined;
-  setClient: (client: PublicClient) => void;
 }
 
-const NilClientContext = createContext<NilClientContextType | undefined>(undefined);
+const NilClientContext = createContext<NilClientContextType | undefined>(
+  undefined
+);
 
-const NilClientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const NilClientProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [client, setClient] = useState<PublicClient | undefined>(undefined);
 
-  useEffect(() => {
-    const client = new PublicClient({
+  const clientInstance = useMemo(() => {
+    return new PublicClient({
       transport: new HttpTransport({
         endpoint: process.env.NEXT_PUBLIC_RPC!,
       }),
       shardId: 1,
     });
-    setClient(client);
   }, []);
 
+  useEffect(() => {
+    setClient((prev) => prev ?? clientInstance);
+  }, [clientInstance]);
+
   return (
-    <NilClientContext.Provider value={{ client, setClient }}>
+    <NilClientContext.Provider value={{ client }}>
       {children}
     </NilClientContext.Provider>
   );
@@ -35,5 +47,3 @@ export const useNilClient = (): NilClientContextType => {
   }
   return context;
 };
-
-export default NilClientProvider;

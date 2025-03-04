@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import useCollectionRegistryContract from "@/hooks/useCollectionRegistry";
 import { getContract, Hex } from "@nilfoundation/niljs";
@@ -88,7 +96,7 @@ export const UserAssetsProvider = ({
     } finally {
       setNftsLoading(false);
     }
-  }, [client, fetchMetadata, walletAddress])
+  }, [client, fetchMetadata, walletAddress]);
 
   useEffect(() => {
     fetchNFTs();
@@ -140,7 +148,7 @@ export const UserAssetsProvider = ({
           collectionsObj.push({
             name: metadata.name,
             imageUrl: metadata.image,
-            address
+            address,
           });
         }
 
@@ -148,6 +156,7 @@ export const UserAssetsProvider = ({
         fetchedCollections.current = true;
       } catch (error) {
         console.error("❌ Error fetching collections:", error);
+        fetchedCollections.current = true;
       } finally {
         setCollectionsLoading(false);
       }
@@ -156,10 +165,19 @@ export const UserAssetsProvider = ({
     fetchCollectionsInfo();
   }, [client, collectionAddresses, fetchMetadata]);
 
+  const contextValue = useMemo(
+    () => ({
+      collections,
+      collectionsLoading,
+      nfts,
+      nftsLoading,
+      fetchNFTs,
+    }),
+    [collections, collectionsLoading, nfts, nftsLoading, fetchNFTs]
+  );
+
   return (
-    <UserAssetsContext.Provider
-      value={{ collections, collectionsLoading, nfts, nftsLoading, fetchNFTs }}
-    >
+    <UserAssetsContext.Provider value={contextValue}>
       {children}
     </UserAssetsContext.Provider>
   );

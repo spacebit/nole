@@ -1,16 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export const usePinataUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
-  const uploadFile = async (file: File) => {
-    if (!file) {
-      alert("No file selected");
-      return;
-    }
+  const uploadFile = useCallback(async (file: File) => {
+    if (!file) throw new Error("No file selected");
 
     try {
       setUploading(true);
@@ -24,14 +21,15 @@ export const usePinataUpload = () => {
 
       const result = await uploadRequest.json();
       setUploadedUrl(result.url);
-      setUploading(false);
-
       return result.url;
     } catch (error) {
       console.error("❌ Upload failed:", error);
+      return null;
+    } finally {
       setUploading(false);
     }
-  };
+  }, []);
+
 
   return { uploading, uploadedUrl, uploadFile };
 };

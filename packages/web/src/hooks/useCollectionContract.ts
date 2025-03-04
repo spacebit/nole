@@ -1,12 +1,19 @@
-import { useState, useEffect } from "react";
-import { getContract, Hex, PublicClient, waitTillCompleted } from "@nilfoundation/niljs";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  getContract,
+  Hex,
+  PublicClient,
+  waitTillCompleted,
+} from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import { artifacts } from "../lib/artifacts";
 import { useNilClient } from "@/contexts/NilClientContext";
 import { encodeFunctionData } from "viem";
 import { Collection$Type } from "../../../contracts/artifacts/contracts/Collection.sol/Collection";
 
-type CollectionContract = ReturnType<typeof getContract<Collection$Type['abi'], PublicClient>>;
+type CollectionContract = ReturnType<
+  typeof getContract<Collection$Type["abi"], PublicClient>
+>;
 
 const useCollectionContract = (contractAddress: Hex) => {
   const { walletAddress } = useNilWallet();
@@ -30,63 +37,78 @@ const useCollectionContract = (contractAddress: Hex) => {
     }
   }, [client, contractAddress, walletAddress]);
 
-  const getName = async () => {
+  const getName = useCallback(async () => {
     if (!contract) return null;
     return contract.read.name([]);
-  };
+  }, [contract]);
 
-  const getSymbol = async () => {
+  const getSymbol = useCallback(async () => {
     if (!contract) return null;
     return contract.read.symbol([]);
-  };
+  }, [contract]);
 
-  const getNFTAddress = async (tokenId: bigint) => {
-    if (!contract) return null;
-    return contract.read.getNFTAddress([tokenId]);
-  };
+  const getNFTAddress = useCallback(
+    async (tokenId: bigint) => {
+      if (!contract) return null;
+      return contract.read.getNFTAddress([tokenId]);
+    },
+    [contract]
+  );
 
-  const getBalanceOf = async (owner: Hex) => {
-    if (!contract) return null;
-    return contract.read.balanceOf([owner]);
-  };
+  const getBalanceOf = useCallback(
+    async (owner: Hex) => {
+      if (!contract) return null;
+      return contract.read.balanceOf([owner]);
+    },
+    [contract]
+  );
 
-  const getOwnerOf = async (tokenId: bigint) => {
-    if (!contract) return null;
-    return contract.read.ownerOf([tokenId]);
-  };
+  const getOwnerOf = useCallback(
+    async (tokenId: bigint) => {
+      if (!contract) return null;
+      return contract.read.ownerOf([tokenId]);
+    },
+    [contract]
+  );
 
-  const mintNFT = async (to: Hex, tokenId: bigint, tokenURI: string) => {
-    if (!contract || !walletAddress) return;
-    try {
-      const tx = {
-        to: contractAddress,
-        data: encodeFunctionData({
-          functionName: "mint",
-          args: [to, tokenId, tokenURI],
-          abi: artifacts.collection.abi,
-        }),
-      };
-      const txHash = await window.nil!.request({
-        method: "eth_sendTransaction",
-        params: [tx],
-      });
-      await waitTillCompleted(client!, txHash);
-      console.log("✅ Mint transaction sent:", txHash);
-      return txHash;
-    } catch (error) {
-      console.error("❌ Minting failed:", error);
-      return null;
-    }
-  };
+  const mintNFT = useCallback(
+    async (to: Hex, tokenId: bigint, tokenURI: string) => {
+      if (!contract || !walletAddress || !client) return;
+      try {
+        const tx = {
+          to: contractAddress,
+          data: encodeFunctionData({
+            functionName: "mint",
+            args: [to, tokenId, tokenURI],
+            abi: artifacts.collection.abi,
+          }),
+        };
+        const txHash = await window.nil!.request({
+          method: "eth_sendTransaction",
+          params: [tx],
+        });
+        await waitTillCompleted(client, txHash);
+        console.log("✅ Mint transaction sent:", txHash);
+        return txHash;
+      } catch (error) {
+        console.error("❌ Minting failed:", error);
+        return null;
+      }
+    },
+    [client, contract, contractAddress, walletAddress]
+  );
 
-  return {
-    getName,
-    getSymbol,
-    getNFTAddress,
-    getBalanceOf,
-    getOwnerOf,
-    mintNFT,
-  };
+  return useMemo(
+    () => ({
+      getName,
+      getSymbol,
+      getNFTAddress,
+      getBalanceOf,
+      getOwnerOf,
+      mintNFT,
+    }),
+    [getName, getSymbol, getNFTAddress, getBalanceOf, getOwnerOf, mintNFT]
+  );
 };
 
 export default useCollectionContract;
