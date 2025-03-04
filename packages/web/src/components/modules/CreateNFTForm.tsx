@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 import useCollectionContract from "@/hooks/useCollectionContract";
 import { Hex } from "@nilfoundation/niljs";
+import Loader from "@/components/ui/Loader"; // Import Loader component
 
 const CreateNFTForm: React.FC = () => {
   const { uploadFile, uploadMetadata, uploading } = usePinata();
@@ -19,8 +20,7 @@ const CreateNFTForm: React.FC = () => {
   const [selectedCollection, setSelectedCollection] = useState<Hex | null>(null);
   const [attributes, setAttributes] = useState<{ trait_type: string; value: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{ message: string; status: "loading" | "success" | "error" } | null>(null);
 
   const collectionContract = useCollectionContract(selectedCollection as Hex);
 
@@ -29,7 +29,6 @@ const CreateNFTForm: React.FC = () => {
       const newFile = e.target.files[0];
       setFile(newFile);
       setPreviewUrl(URL.createObjectURL(newFile));
-      setError(null);
     }
   };
 
@@ -44,20 +43,19 @@ const CreateNFTForm: React.FC = () => {
   };
 
   const handleCreateNFT = async () => {
-    setError(null);
-    setSuccessMessage(null);
+    setStatusMessage({ message: "Uploading NFT...", status: "loading" });
+    setIsSubmitting(true);
 
     if (!file || !name.trim() || !description.trim() || !selectedCollection) {
-      setError("Please fill out all fields and upload an image.");
+      setStatusMessage({ message: "Please fill out all fields and upload an image.", status: "error" });
+      setIsSubmitting(false);
       return;
     }
-
-    setIsSubmitting(true);
 
     try {
       const imageUrl = await uploadFile(file);
       if (!imageUrl) {
-        setError("Image upload failed. Please try again.");
+        setStatusMessage({ message: "Image upload failed.", status: "error" });
         setIsSubmitting(false);
         return;
       }
@@ -71,25 +69,22 @@ const CreateNFTForm: React.FC = () => {
 
       const metadataUrl = await uploadMetadata(metadata);
       if (!metadataUrl) {
-        setError("Metadata upload failed. Please try again.");
+        setStatusMessage({ message: "Metadata upload failed.", status: "error" });
         setIsSubmitting(false);
         return;
       }
 
       const tokenId = BigInt(Date.now());
-      const mintTx = await collectionContract.mintNFT(
-        selectedCollection as Hex,
-        tokenId,
-        metadataUrl
-      );
+      const mintTx = await collectionContract.mintNFT(selectedCollection as Hex, tokenId, metadataUrl);
 
       if (mintTx) {
-        setSuccessMessage("NFT created successfully!");
+        setStatusMessage({ message: "NFT created successfully!", status: "success" });
         fetchNFTs();
       } else {
-        setError("Transaction failed. Please try again.");
+        setStatusMessage({ message: "Transaction failed.", status: "error" });
       }
 
+      // Reset form
       setFile(null);
       setPreviewUrl(null);
       setName("");
@@ -97,7 +92,7 @@ const CreateNFTForm: React.FC = () => {
       setSelectedCollection(null);
       setAttributes([]);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setStatusMessage({ message: "Something went wrong.", status: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -105,10 +100,9 @@ const CreateNFTForm: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-xl shadow-lg w-full max-w-md">
-      <Text variant="h1">Create an NFT</Text>
+      <Text variant="h1">Create new NFT</Text>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
+      {statusMessage && <Loader message={statusMessage.message} status={statusMessage.status} />}
 
       {/* Image Upload */}
       <label className="relative w-[300px] h-[300px] cursor-pointer group border border-gray-300 rounded-lg flex items-center justify-center">
