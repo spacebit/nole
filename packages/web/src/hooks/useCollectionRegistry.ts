@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   getContract,
   Hex,
@@ -7,7 +7,7 @@ import {
 } from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import { artifacts } from "../lib/artifacts";
-import { useNil } from "@/contexts/NilContext";
+import { useNilClient } from "@/contexts/NilClientContext";
 import { encodeFunctionData } from "viem";
 import { CollectionRegistry$Type } from "../../../contracts/artifacts/contracts/CollectionRegistry.sol/CollectionRegistry";
 
@@ -17,7 +17,7 @@ type CollectionRegistryContract = ReturnType<
 
 const useCollectionRegistryContract = (registryAddress: Hex) => {
   const { walletAddress } = useNilWallet();
-  const { client } = useNil();
+  const { client } = useNilClient();
   const [contract, setContract] = useState<CollectionRegistryContract | null>(
     null
   );
@@ -39,49 +39,54 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   }, [client, registryAddress, walletAddress]);
 
-  const createCollection = async (
-    name: string,
-    symbol: string,
-    tokenURI: string
-  ) => {
-    if (!contract || !walletAddress) return null;
-    try {
-      const tx = {
-        to: registryAddress,
-        data: encodeFunctionData({
-          functionName: "createCollection",
-          args: [name, symbol, tokenURI],
-          abi: artifacts.registry.abi,
-        }),
-      };
-      const txHash = await window.nil!.request({
-        method: "eth_sendTransaction",
-        params: [tx],
-      });
-      console.log("✅ Collection creation transaction sent:", txHash);
-      await waitTillCompleted(client!, txHash);
-      return txHash;
-    } catch (error) {
-      console.error("❌ Error creating collection:", error);
-      return null;
-    }
-  };
+  const createCollection = useCallback(
+    async (name: string, symbol: string, tokenURI: string) => {
+      if (!contract || !walletAddress || !client) return null;
+      try {
+        const tx = {
+          to: registryAddress,
+          data: encodeFunctionData({
+            functionName: "createCollection",
+            args: [name, symbol, tokenURI],
+            abi: artifacts.registry.abi,
+          }),
+        };
+        const txHash = await window.nil!.request({
+          method: "eth_sendTransaction",
+          params: [tx],
+        });
+        console.log("✅ Collection creation transaction sent:", txHash);
+        await waitTillCompleted(client, txHash);
+        return txHash;
+      } catch (error) {
+        console.error("❌ Error creating collection:", error);
+        return null;
+      }
+    },
+    [client, contract, registryAddress, walletAddress]
+  );
 
-  const getCollectionsOf = async (owner: Hex) => {
-    if (!contract) return null;
-    return contract.read.getCollectionsOf([owner]) as `0x${string}`[];
-  };
+  const getCollectionsOf = useCallback(
+    async (owner: Hex) => {
+      if (!contract) return null;
+      return contract.read.getCollectionsOf([owner]) as `0x${string}`[];
+    },
+    [contract]
+  );
 
-  const getCollectionsAmountOf = async (owner: Hex) => {
-    if (!contract) return null;
-    return contract.read.getCollectionsAmountOf([owner]) as bigint;
-  };
+  const getCollectionsAmountOf = useCallback(
+    async (owner: Hex) => {
+      if (!contract) return null;
+      return contract.read.getCollectionsAmountOf([owner]) as bigint;
+    },
+    [contract]
+  );
 
-  return {
+  return useMemo(() => ({
     createCollection,
     getCollectionsOf,
     getCollectionsAmountOf,
-  };
+  }), [createCollection, getCollectionsOf, getCollectionsAmountOf]);
 };
 
 export default useCollectionRegistryContract;

@@ -1,10 +1,18 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import useCollectionRegistryContract from "@/hooks/useCollectionRegistry";
 import { getContract, Hex } from "@nilfoundation/niljs";
-import { useNil } from "@/contexts/NilContext";
+import { useNilClient } from "@/contexts/NilClientContext";
 import { artifacts } from "@/lib/artifacts";
 import { usePinata } from "@/contexts/PinataContext";
 import { CardItem, CollectionCard } from "@/types/card";
@@ -16,6 +24,7 @@ interface UserAssetsContextProps {
   nfts: CardItem[];
   nftsLoading: boolean;
   fetchNFTs: () => Promise<void>;
+  fetchUserCollections: () => Promise<void>;
 }
 
 const UserAssetsContext = createContext<UserAssetsContextProps | undefined>(
@@ -32,7 +41,7 @@ export const UserAssetsProvider = ({
     process.env.NEXT_PUBLIC_REGISTRY_ADDRESS! as Hex
   );
   const { fetchMetadata } = usePinata();
-  const { client } = useNil();
+  const { client } = useNilClient();
 
   const [collectionAddresses, setCollectionAddresses] = useState<Hex[]>([]);
   const [collections, setCollections] = useState<CollectionCard[]>([]);
@@ -42,6 +51,22 @@ export const UserAssetsProvider = ({
   const [nfts, setWalletNFTs] = useState<CardItem[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
 
+  const fetchUserCollections = useCallback(async () => {
+    if (!walletAddress) return;
+  
+    setCollectionsLoading(true);
+    try {
+      const userCollections = await getCollectionsOf(walletAddress);
+      setCollectionAddresses(userCollections || []);
+      fetchedCollections.current = false; // Allow metadata to be fetched again
+    } catch (error) {
+      console.error("❌ Error fetching user collections:", error);
+    } finally {
+      setCollectionsLoading(false);
+    }
+  }, [walletAddress, getCollectionsOf]);
+
+  
   const fetchNFTs = useCallback(async () => {
     if (!walletAddress || !client) return;
 
@@ -57,7 +82,7 @@ export const UserAssetsProvider = ({
 
       for (const address of tokenAddresses) {
         const nftContract = getContract({
-          client: client!,
+          client,
           abi: artifacts.nft.abi,
           address: address as Hex,
         });
@@ -88,7 +113,7 @@ export const UserAssetsProvider = ({
     } finally {
       setNftsLoading(false);
     }
-  }, [client, fetchMetadata, walletAddress])
+  }, [client, fetchMetadata, walletAddress]);
 
   useEffect(() => {
     fetchNFTs();
@@ -117,6 +142,8 @@ export const UserAssetsProvider = ({
         return;
       }
 
+      if (!client) return;
+
       setCollectionsLoading(true);
 
       try {
@@ -124,7 +151,7 @@ export const UserAssetsProvider = ({
 
         for (const address of collectionAddresses) {
           const collectionContract = getContract({
-            client: client!,
+            client,
             abi: artifacts.collection.abi,
             address,
           });
@@ -138,7 +165,7 @@ export const UserAssetsProvider = ({
           collectionsObj.push({
             name: metadata.name,
             imageUrl: metadata.image,
-            address
+            address,
           });
         }
 
@@ -146,6 +173,7 @@ export const UserAssetsProvider = ({
         fetchedCollections.current = true;
       } catch (error) {
         console.error("❌ Error fetching collections:", error);
+        fetchedCollections.current = true;
       } finally {
         setCollectionsLoading(false);
       }
@@ -154,10 +182,20 @@ export const UserAssetsProvider = ({
     fetchCollectionsInfo();
   }, [client, collectionAddresses, fetchMetadata]);
 
+  const contextValue = useMemo(
+    () => ({
+      collections,
+      collectionsLoading,
+      nfts,
+      nftsLoading,
+      fetchNFTs,
+      fetchUserCollections
+    }),
+    [collections, collectionsLoading, nfts, nftsLoading, fetchNFTs, fetchUserCollections]
+  );
+
   return (
-    <UserAssetsContext.Provider
-      value={{ collections, collectionsLoading, nfts: nfts, nftsLoading, fetchNFTs }}
-    >
+    <UserAssetsContext.Provider value={contextValue}>
       {children}
     </UserAssetsContext.Provider>
   );

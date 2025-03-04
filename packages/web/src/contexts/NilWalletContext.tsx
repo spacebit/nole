@@ -1,7 +1,13 @@
 "use client";
 
 import { Hex } from "@nilfoundation/niljs";
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 interface NilWalletContextType {
   walletAddress: Hex | null;
@@ -20,11 +26,11 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [walletAddress, setWalletAddress] = useState<Hex | null>(null);
 
-  const walletInstalled = () => {
+  const walletInstalled = useCallback(() => {
     return typeof window !== "undefined" && window.nil ? true : false;
-  };
+  }, []);
 
-  const connectWallet = async () => {
+  const connectWallet = useCallback(async () => {
     if (typeof window !== "undefined" && window.nil) {
       try {
         const accounts = await window.nil.request({
@@ -42,7 +48,7 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
         "❌ =nil; Wallet Extension not found. Install the extension."
       );
     }
-  };
+  }, []);
 
   const disconnectWallet = () => {
     if (walletAddress) {
@@ -50,40 +56,49 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const sendTransaction = async (
-    to: string,
-    value: number
-  ): Promise<string | null> => {
-    if (!walletAddress) {
-      console.error("❌ No wallet connected. Please connect first.");
-      return null;
-    }
+  const sendTransaction = useCallback(
+    async (to: string, value: number): Promise<string | null> => {
+      if (!walletAddress) {
+        console.error("❌ No wallet connected. Please connect first.");
+        return null;
+      }
 
-    const tx = { to, value };
+      const tx = { to, value };
 
-    try {
-      const txHash = await window.nil?.request({
-        method: "eth_sendTransaction",
-        params: [tx],
-      });
-      console.log("✅ Transaction sent:", txHash);
-      return txHash;
-    } catch (error) {
-      console.error("❌ Failed to send transaction:", error);
-      return null;
-    }
-  };
+      try {
+        const txHash = await window.nil?.request({
+          method: "eth_sendTransaction",
+          params: [tx],
+        });
+        console.log("✅ Transaction sent:", txHash);
+        return txHash;
+      } catch (error) {
+        console.error("❌ Failed to send transaction:", error);
+        return null;
+      }
+    },
+    [walletAddress]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      walletAddress,
+      connectWallet,
+      disconnectWallet,
+      sendTransaction,
+      walletInstalled,
+    }),
+    [
+      walletAddress,
+      connectWallet,
+      disconnectWallet,
+      sendTransaction,
+      walletInstalled,
+    ]
+  );
 
   return (
-    <NilWalletContext.Provider
-      value={{
-        walletAddress,
-        connectWallet,
-        disconnectWallet,
-        sendTransaction,
-        walletInstalled,
-      }}
-    >
+    <NilWalletContext.Provider value={contextValue}>
       {children}
     </NilWalletContext.Provider>
   );

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { Metadata } from "@/types/metadata";
 
 interface PinataContextType {
@@ -16,12 +22,14 @@ interface PinataContextType {
 
 const PinataContext = createContext<PinataContextType | undefined>(undefined);
 
-export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [metadataUrl, setMetadataUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const uploadFile = async (file: File): Promise<string | null> => {
+  const uploadFile = useCallback(async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
       const data = new FormData();
@@ -41,44 +49,70 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setUploading(false);
       return null;
     }
-  };
+  }, []);
 
-  const uploadMetadata = async (metadata: Metadata): Promise<string | null> => {
-    try {
-      setUploading(true);
-      
-      const metadataRequest = await fetch("/api/metadata", {
-        method: "POST",
-        body: JSON.stringify(metadata),
-        headers: { "Content-Type": "application/json" },
-      });
+  const uploadMetadata = useCallback(
+    async (metadata: Metadata): Promise<string | null> => {
+      try {
+        setUploading(true);
+        const metadataRequest = await fetch("/api/metadata", {
+          method: "POST",
+          body: JSON.stringify(metadata),
+          headers: { "Content-Type": "application/json" },
+        });
 
-      const result = await metadataRequest.json();
-      setMetadataUrl(result.url);
-      setUploading(false);
-      return result.url;
-    } catch (error) {
-      console.error("❌ Metadata Upload Failed:", error);
-      setUploading(false);
-      return null;
-    }
-  };
+        const result = await metadataRequest.json();
+        setMetadataUrl(result.url);
+        return result.url;
+      } catch (error) {
+        console.error("❌ Metadata Upload Failed:", error);
+        return null;
+      } finally {
+        setUploading(false);
+      }
+    },
+    []
+  );
 
-  const fetchMetadata = async (url: string): Promise<Metadata | null> => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch metadata");
+  const fetchMetadata = useCallback(
+    async (url: string): Promise<Metadata | null> => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch metadata");
 
-      const metadata: Metadata = await response.json();
-      return metadata;
-    } catch (error) {
-      console.error("❌ Error fetching metadata:", error);
-      return null;
-    }
-  };
+        const metadata: Metadata = await response.json();
+        return metadata;
+      } catch (error) {
+        console.error("❌ Error fetching metadata:", error);
+        return null;
+      }
+    },
+    []
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      uploadedUrl,
+      setUploadedUrl,
+      metadataUrl,
+      setMetadataUrl,
+      uploadFile,
+      uploadMetadata,
+      fetchMetadata,
+      uploading,
+    }),
+    [
+      uploadedUrl,
+      metadataUrl,
+      uploadFile,
+      uploadMetadata,
+      fetchMetadata,
+      uploading,
+    ]
+  );
 
   return (
-    <PinataContext.Provider value={{ uploadedUrl, setUploadedUrl, metadataUrl, setMetadataUrl, uploadFile, uploadMetadata, fetchMetadata, uploading }}>
+    <PinataContext.Provider value={contextValue}>
       {children}
     </PinataContext.Provider>
   );
