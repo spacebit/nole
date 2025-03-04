@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "compile:contracts": "pnpm --filter contracts compile",
     "dev:web": "pnpm --filter web dev"
   },
   "keywords": [],
