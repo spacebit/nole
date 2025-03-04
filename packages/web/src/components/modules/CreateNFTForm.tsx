@@ -175,7 +175,7 @@ const CreateNFTForm: React.FC = () => {
             />
           </div>
         ))}
-        <Button onClick={handleAddAttribute}>Add Attribute</Button>
+        <Button onClick={handleAddAttribute} variant="secondary">Add Attribute</Button>
       </div>
 
       {/* Submit Button */}

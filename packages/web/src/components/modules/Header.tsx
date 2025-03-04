@@ -7,7 +7,8 @@ import Link from "next/link";
 
 const Header: React.FC = () => {
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white shadow">
+    <header className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
+      {/* Logo */}
       <div className="flex items-center">
         <Link href="/">
           <Image
@@ -20,10 +21,15 @@ const Header: React.FC = () => {
         </Link>
       </div>
 
-      <div className="flex-1 flex justify-center">
-        {/* The menu will be here */}
-      </div>
+      {/* Menu */}
+      <nav className="flex-1 flex justify-center space-x-6 text-lg font-bold">
+        <Link href="/" className="text-gray-800 hover:text-black">
+          Minter
+        </Link>
+        <span className="text-gray-400 cursor-not-allowed">Marketplace (Coming Soon)</span>
+      </nav>
 
+      {/* Connect Button */}
       <div className="flex items-center">
         <ConnectButton />
       </div>

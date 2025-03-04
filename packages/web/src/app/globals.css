@@ -2,13 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  font-family: var(--font-geist-sans), sans-serif;
 }
 
-body {
-  color: var(--foreground);
-  background-color: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+h1, h2, h3 {
+  font-family: var(--font-unbounded), sans-serif;
+}
+
+code, .mono {
+  font-family: var(--font-geist-mono), monospace;
 }

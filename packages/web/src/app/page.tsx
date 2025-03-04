@@ -7,6 +7,7 @@ import Text from "@/components/ui/Text";
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
 import Placeholder from "@/components/modules/Placeholder";
+import Island from "@/components/ui/Island";
 
 export default function Home() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function Home() {
   return (
     <>
       {/* Top Action Buttons */}
-      <div className="flex justify-center p-5">
+      <div className="flex p-5">
         <div className="m-3">
           <div className="flex gap-4">
             <Button onClick={() => router.push("/create-collection")}>
@@ -33,22 +34,19 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Islands Container */}
       <div className="flex flex-row gap-4 p-5">
-        {/* Collections Island: Only show if loading or collections exist */}
         {(collectionsLoading || collections.length > 0) && (
-          <div className="w-64 flex-shrink-0 bg-white shadow-md rounded-lg p-4">
+          <Island className="w-64 flex-shrink-0">
             <div className="flex flex-col items-center text-center">
               <Text variant="h2" className="mb-4">
                 Collections
               </Text>
               <CardsList cards={collections} loading={collectionsLoading} variant="small" />
             </div>
-          </div>
+          </Island>
         )}
 
-        {/* NFTs Island: Takes remaining width */}
-        <div className="flex-1 bg-white shadow-md rounded-lg p-4">
+        <Island className="flex-1">
           {nftsLoading ? (
             <CardsList cards={[]} loading={true} variant="large" />
           ) : nfts.length > 0 ? (
@@ -61,7 +59,7 @@ export default function Home() {
           ) : (
             <Placeholder message="No NFTs found" action="Create NFT" />
           )}
-        </div>
+        </Island>
       </div>
     </>
   );
