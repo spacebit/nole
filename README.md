@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./packages/web/public/logo.svg" alt="Logo" width="120"/>
+  <img src="./docs/logo.svg" alt="Logo" width="120"/>
 </p>
 
 ## Overview
