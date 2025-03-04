@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "compile-contracts": "pnpm --filter contracts compile",
+    "build": "pnpm run compile-contracts && next build",
     "start": "next start",
     "lint": "next lint"
   },
