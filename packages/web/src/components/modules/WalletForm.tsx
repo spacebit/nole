@@ -19,7 +19,6 @@ const WalletForm: React.FC<WalletFormProps> = ({ onClose }) => {
   const [privateKey, setPrivateKeyState] = useState("");
   const [walletAddress, setWalletAddressState] = useState("");
 
-  // Populate form fields with values from the context.
   useEffect(() => {
     if (contextKey) setPrivateKeyState(contextKey);
     if (contextAddress) setWalletAddressState(contextAddress);

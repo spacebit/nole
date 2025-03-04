@@ -5,7 +5,6 @@ import {
   type SendTransactionParams,
   bytesToHex,
   getShardIdFromAddress,
-  prepareDeployPart,
   refineAddress,
   SmartAccountV1,
   waitTillCompleted,

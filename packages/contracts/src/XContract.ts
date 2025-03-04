@@ -34,7 +34,7 @@ export class XContract<T extends Abi> {
       abi: artifact.abi,
       args: args as unknown[],
       bytecode: artifact.bytecode,
-      feeCredit: 5_000_000n,
+      feeCredit: 10_000_000n,
       shardId,
       salt: salt ?? BigInt(Date.now()),
     });
@@ -63,6 +63,7 @@ export class XContract<T extends Abi> {
         functionName: params.functionName,
         args: params.args as any,
       }),
+
     });
 
     if (expectSuccess) expectAllReceiptsSuccess(receipts);

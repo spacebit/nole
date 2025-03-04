@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getContract, Hex, PublicClient, waitTillCompleted } from "@nilfoundation/niljs";
+import { getContract, Hex, PublicClient } from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import { artifacts } from "../lib/artifacts";
 import { useNil } from "@/contexts/NilContext";
@@ -70,7 +70,6 @@ const useCollectionContract = (contractAddress: Hex) => {
         method: "eth_sendTransaction",
         params: [tx],
       });
-      await waitTillCompleted(client!, txHash);
       console.log("✅ Mint transaction sent:", txHash);
       return txHash;
     } catch (error) {

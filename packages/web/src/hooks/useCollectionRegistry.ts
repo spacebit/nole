@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
-import { getContract, Hex } from "@nilfoundation/niljs";
+import {
+  getContract,
+  Hex,
+  PublicClient,
+  waitTillCompleted,
+} from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
-import {artifacts} from "../lib/artifacts";
+import { artifacts } from "../lib/artifacts";
 import { useNil } from "@/contexts/NilContext";
 import { encodeFunctionData } from "viem";
+import { CollectionRegistry$Type } from "../../../contracts/artifacts/contracts/CollectionRegistry.sol/CollectionRegistry";
+
+type CollectionRegistryContract = ReturnType<
+  typeof getContract<CollectionRegistry$Type["abi"], PublicClient>
+>;
 
 const useCollectionRegistryContract = (registryAddress: Hex) => {
   const { walletAddress } = useNilWallet();
   const { client } = useNil();
-  const [contract, setContract] = useState<ReturnType<typeof getContract> | null>(null);
+  const [contract, setContract] = useState<CollectionRegistryContract | null>(
+    null
+  );
 
   useEffect(() => {
     if (registryAddress && walletAddress) {
@@ -27,18 +39,27 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   }, [client, registryAddress, walletAddress]);
 
-  const createCollection = async (name: string, symbol: string) => {
+  const createCollection = async (
+    name: string,
+    symbol: string,
+    tokenURI: string
+  ) => {
     if (!contract || !walletAddress) return null;
     try {
       const tx = {
         to: registryAddress,
-        data: encodeFunctionData({functionName: "createCollection", args: [name, symbol], abi: artifacts.registry.abi}),
+        data: encodeFunctionData({
+          functionName: "createCollection",
+          args: [name, symbol, tokenURI],
+          abi: artifacts.registry.abi,
+        }),
       };
       const txHash = await window.nil!.request({
         method: "eth_sendTransaction",
         params: [tx],
       });
       console.log("✅ Collection creation transaction sent:", txHash);
+      await waitTillCompleted(client!, txHash);
       return txHash;
     } catch (error) {
       console.error("❌ Error creating collection:", error);
@@ -46,12 +67,12 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   };
 
-  const getCollectionsOf = async (owner: string) => {
+  const getCollectionsOf = async (owner: Hex) => {
     if (!contract) return null;
-    return contract.read.getCollectionsOf([owner]);
+    return contract.read.getCollectionsOf([owner]) as `0x${string}`[];
   };
 
-  const getCollectionsAmountOf = async (owner: string) => {
+  const getCollectionsAmountOf = async (owner: Hex) => {
     if (!contract) return null;
     return contract.read.getCollectionsAmountOf([owner]) as bigint;
   };
