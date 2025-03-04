@@ -1,7 +1,7 @@
 "use client";
 
-import { Metadata } from "@/types/metadata";
 import React, { createContext, useContext, useState } from "react";
+import { Metadata } from "@/types/metadata";
 
 interface PinataContextType {
   uploadedUrl: string | null;
@@ -10,6 +10,7 @@ interface PinataContextType {
   setMetadataUrl: (url: string | null) => void;
   uploadFile: (file: File) => Promise<string | null>;
   uploadMetadata: (metadata: Metadata) => Promise<string | null>;
+  fetchMetadata: (url: string) => Promise<Metadata | null>;
   uploading: boolean;
 }
 
@@ -51,7 +52,7 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         body: JSON.stringify(metadata),
         headers: { "Content-Type": "application/json" },
       });
-  
+
       const result = await metadataRequest.json();
       setMetadataUrl(result.url);
       setUploading(false);
@@ -63,8 +64,21 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const fetchMetadata = async (url: string): Promise<Metadata | null> => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch metadata");
+
+      const metadata: Metadata = await response.json();
+      return metadata;
+    } catch (error) {
+      console.error("❌ Error fetching metadata:", error);
+      return null;
+    }
+  };
+
   return (
-    <PinataContext.Provider value={{ uploadedUrl, setUploadedUrl, metadataUrl, setMetadataUrl, uploadFile, uploadMetadata, uploading }}>
+    <PinataContext.Provider value={{ uploadedUrl, setUploadedUrl, metadataUrl, setMetadataUrl, uploadFile, uploadMetadata, fetchMetadata, uploading }}>
       {children}
     </PinataContext.Provider>
   );

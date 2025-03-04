@@ -15,7 +15,7 @@ contract CollectionRegistry {
         string memory _symbol,
         string memory _contractURI
     ) external returns (Collection) {
-        Collection newCollection = new Collection(_collectionName, _symbol, _contractURI);
+        Collection newCollection = new Collection(_collectionName, _symbol, _contractURI, msg.sender);
         s_collectionsOf[msg.sender].push(newCollection);
         s_collectionsAmount[msg.sender]++;
         return newCollection;

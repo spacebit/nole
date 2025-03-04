@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
-import { getContract, Hex, waitTillCompleted } from "@nilfoundation/niljs";
+import {
+  getContract,
+  Hex,
+  PublicClient,
+  waitTillCompleted,
+} from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
-import {artifacts} from "../lib/artifacts";
+import { artifacts } from "../lib/artifacts";
 import { useNil } from "@/contexts/NilContext";
 import { encodeFunctionData } from "viem";
+import { CollectionRegistry$Type } from "../../../contracts/artifacts/contracts/CollectionRegistry.sol/CollectionRegistry";
+
+type CollectionRegistryContract = ReturnType<
+  typeof getContract<CollectionRegistry$Type["abi"], PublicClient>
+>;
 
 const useCollectionRegistryContract = (registryAddress: Hex) => {
   const { walletAddress } = useNilWallet();
   const { client } = useNil();
-  const [contract, setContract] = useState<ReturnType<typeof getContract> | null>(null);
+  const [contract, setContract] = useState<CollectionRegistryContract | null>(
+    null
+  );
 
   useEffect(() => {
     if (registryAddress && walletAddress) {
@@ -27,13 +39,20 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   }, [client, registryAddress, walletAddress]);
 
-  const createCollection = async (name: string, symbol: string, tokenURI: string) => {
-    console.log(">>>>>> ", contract, walletAddress)
+  const createCollection = async (
+    name: string,
+    symbol: string,
+    tokenURI: string
+  ) => {
     if (!contract || !walletAddress) return null;
     try {
       const tx = {
         to: registryAddress,
-        data: encodeFunctionData({functionName: "createCollection", args: [name, symbol, tokenURI], abi: artifacts.registry.abi}),
+        data: encodeFunctionData({
+          functionName: "createCollection",
+          args: [name, symbol, tokenURI],
+          abi: artifacts.registry.abi,
+        }),
       };
       const txHash = await window.nil!.request({
         method: "eth_sendTransaction",
@@ -48,12 +67,12 @@ const useCollectionRegistryContract = (registryAddress: Hex) => {
     }
   };
 
-  const getCollectionsOf = async (owner: string) => {
+  const getCollectionsOf = async (owner: Hex) => {
     if (!contract) return null;
-    return contract.read.getCollectionsOf([owner]) as {name: string, contractURI: string};
+    return contract.read.getCollectionsOf([owner]) as `0x${string}`[];
   };
 
-  const getCollectionsAmountOf = async (owner: string) => {
+  const getCollectionsAmountOf = async (owner: Hex) => {
     if (!contract) return null;
     return contract.read.getCollectionsAmountOf([owner]) as bigint;
   };

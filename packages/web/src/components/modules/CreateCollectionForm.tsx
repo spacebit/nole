@@ -4,11 +4,12 @@ import React, { useState } from "react";
 import { usePinata } from "@/contexts/PinataContext";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import Text from "@/components/ui/Text";
 import useCollectionRegistry from "@/hooks/useCollectionRegistry";
 import { Hex } from "@nilfoundation/niljs";
 
 const CreateCollectionForm: React.FC = () => {
-  const { uploadedUrl, setUploadedUrl, uploadFile, uploadMetadata, uploading } = usePinata();
+  const { setUploadedUrl, uploadFile, uploadMetadata, uploading } = usePinata();
   const {createCollection} = useCollectionRegistry(process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Hex);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -76,7 +77,7 @@ const CreateCollectionForm: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-xl shadow-lg w-full max-w-md">
-      <h2 className="text-lg font-semibold text-gray-800">Create a Collection</h2>
+      <Text variant="h1">Create a Collection</Text>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 

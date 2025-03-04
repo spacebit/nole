@@ -5,7 +5,9 @@ import "@nilfoundation/smart-contracts/contracts/Nil.sol";
 import "@nilfoundation/smart-contracts/contracts/NilTokenBase.sol";
 import {ICollection} from "./interfaces/ICollection.sol";
 import {INFT} from "./interfaces/INFT.sol";
+import {IERC165} from "./interfaces/IERC165.sol";
 
+// Interface id: 636f6c6c
 contract NFT is INFT, NilTokenBase {
     address private s_collectionAddress;
     uint256 private s_tokenId;
@@ -35,8 +37,7 @@ contract NFT is INFT, NilTokenBase {
         return s_tokenId;
     }
 
-    // function sendToken(address _to, TokenId _tokenId, uint256 _amount) onlyExternal override public {
-    //     ICollection(s_collectionAddress).changeOwner(s_tokenId, msg.sender, _to);
-    //     super.sendTokenInternal(_to, _tokenId, _amount);
-    // }
+    function supportsInterface(bytes4 interfaceId) external pure override returns (bool) {
+        return interfaceId == type(INFT).interfaceId || interfaceId == type(IERC165).interfaceId;
+    }
 }

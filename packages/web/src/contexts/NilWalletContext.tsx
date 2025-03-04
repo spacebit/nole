@@ -1,9 +1,10 @@
 "use client";
 
+import { Hex } from "@nilfoundation/niljs";
 import React, { createContext, useContext, useState } from "react";
 
 interface NilWalletContextType {
-  walletAddress: string | null;
+  walletAddress: Hex | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
   sendTransaction: (to: string, value: number) => Promise<string | null>;
@@ -17,7 +18,7 @@ const NilWalletContext = createContext<NilWalletContextType | undefined>(
 export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<Hex | null>(null);
 
   const walletInstalled = () => {
     return typeof window !== "undefined" && window.nil ? true : false;

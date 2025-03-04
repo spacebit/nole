@@ -1,56 +1,49 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import CollectionCardsList from "@/components/modules/CollectionCardsList";
+import CardsList from "@/components/modules/CardsList";
 import Button from "@/components/ui/Button";
-import { useNilWallet } from "@/contexts/NilWalletContext";
-import useCollectionRegistryContract from "@/hooks/useCollectionRegistry";
-import { Hex } from "@nilfoundation/niljs";
-import { useEffect, useState } from "react";
 import Text from "@/components/ui/Text";
+import { useNilWallet } from "@/contexts/NilWalletContext";
+import { useUserAssets } from "@/contexts/UserAssetsContext";
+import Placeholder from "@/components/modules/Placeholder";
 
 export default function Home() {
   const router = useRouter();
   const { walletAddress } = useNilWallet();
-  const { getCollectionsAmountOf } = useCollectionRegistryContract(
-    process.env.NEXT_PUBLIC_REGISTRY_ADDRESS! as Hex
-  );
-  const [collectionAmount, setCollectionAmount] = useState<bigint | null>(null);
-
-  useEffect(() => {
-    const fetch = async () => {
-      if (!walletAddress) return;
-      const amount = await getCollectionsAmountOf(walletAddress);
-      if (amount !== null) {
-        setCollectionAmount(amount);
-      }
-    };
-
-    fetch();
-  }, [getCollectionsAmountOf, walletAddress]);
-
-  const TODO_MOCK_COLLECTIONS = [
-    {
-      id: "1",
-      imageUrl: "https://orange-impressed-bonobo-853.mypinata.cloud/ipfs/bafybeictiq7irgueukw7hnmmords4bpi5yjnu6s4dzhu3tuht6xa3jbk3y/500.webp",
-      title: "Hello",
-    },
-    {
-      id: "2",
-      imageUrl: "https://orange-impressed-bonobo-853.mypinata.cloud/ipfs/bafybeictiq7irgueukw7hnmmords4bpi5yjnu6s4dzhu3tuht6xa3jbk3y/250.webp",
-      title: "Hello",
-    },
-  ];
+  const { collections, collectionsLoading } = useUserAssets();
 
   return (
     <>
-      <div className="flex justify-center p-5">
-        <Button onClick={() => router.push("/create-collection")}>
-          Create a Collection
-        </Button>
-        <Text variant="p">Collections: {collectionAmount}</Text>
-      </div>
-      <CollectionCardsList collections={TODO_MOCK_COLLECTIONS} />
+      {walletAddress && (
+        <div className="flex justify-center p-5">
+          <div className="m-3">
+            <div className="flex gap-4">
+              <Button onClick={() => router.push("/create-collection")}>
+                Create a Collection
+              </Button>
+              <Button onClick={() => router.push("/create-nft")}>
+                Create NFT
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {collectionsLoading ? (
+        <CardsList cards={[]} loading={true} />
+      ) : !walletAddress ? (
+        <Placeholder message="Nothing here" action="Connect your wallet" />
+      ) : collections.length === 0 ? (
+        <Placeholder message="Nothing here" action="Create something" />
+      ) : (
+        <div className="flex flex-col items-center justify-center p-5 text-center">
+          <Text variant="h2" className="mb-4">
+            Collections
+          </Text>
+          <CardsList cards={collections} loading={false} />
+        </div>
+      )}
     </>
   );
 }
