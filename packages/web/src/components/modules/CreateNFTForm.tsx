@@ -76,7 +76,7 @@ const CreateNFTForm: React.FC = () => {
         return;
       }
 
-      const tokenId = BigInt(Date.now()); // Generate unique tokenId (use a better logic in production)
+      const tokenId = BigInt(Date.now());
       const mintTx = await collectionContract.mintNFT(
         selectedCollection as Hex,
         tokenId,

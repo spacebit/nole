@@ -21,7 +21,6 @@ export const SecretsProvider: React.FC<{ children: React.ReactNode }> = ({
     undefined
   );
 
-  // On mount, restore wallet details from localStorage.
   useEffect(() => {
     const storedPrivateKey = localStorage.getItem("wallet_private_key");
     const storedWalletAddress = localStorage.getItem("wallet_address");
@@ -33,7 +32,6 @@ export const SecretsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  // Update state and localStorage with wallet details.
   const setSecrets = (newPrivateKey: string, newWalletAddress: string) => {
     setPrivateKey(isHexString(newPrivateKey) ? newPrivateKey : undefined);
     setWalletAddress(
@@ -43,7 +41,6 @@ export const SecretsProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.setItem("wallet_address", newWalletAddress);
   };
 
-  // Clear wallet details from state and localStorage.
   const clearSecrets = () => {
     setPrivateKey(undefined);
     setWalletAddress(undefined);

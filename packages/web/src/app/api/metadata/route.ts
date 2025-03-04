@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     console.log("✅ Received metadata upload request...");
 
     const pinata = await getPinataInstance();
-    const metadata = await request.json(); // ✅ Read JSON body
+    const metadata = await request.json();
 
     if (!metadata.name || !metadata.description || !metadata.image) {
       return NextResponse.json({ error: "Missing required metadata fields" }, { status: 400 });

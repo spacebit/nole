@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log("✅ Received file upload request...");
 
-    const pinata = await getPinataInstance(); // ✅ Now using async function
+    const pinata = await getPinataInstance();
 
     const data = await request.formData();
     const file: File | null = data.get("file") as unknown as File;

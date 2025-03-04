@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const pinata = await getPinataInstance(); // ✅ Now using async function
+    const pinata = await getPinataInstance();
 
     const uuid = crypto.randomUUID();
     const keyData = await pinata.keys.create({
