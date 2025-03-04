@@ -1,16 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { usePinata } from "@/contexts/PinataContext";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
 import useCollectionRegistry from "@/hooks/useCollectionRegistry";
 import { Hex } from "@nilfoundation/niljs";
+import { useUserAssets } from "@/contexts/UserAssetsContext";
 
 const CreateCollectionForm: React.FC = () => {
   const { setUploadedUrl, uploadFile, uploadMetadata, uploading } = usePinata();
   const {createCollection} = useCollectionRegistry(process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Hex);
+  const { fetchUserCollections } = useUserAssets();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -20,16 +22,16 @@ const CreateCollectionForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFile = e.target.files[0];
       setFile(newFile);
       setPreviewUrl(URL.createObjectURL(newFile));
       setError(null);
     }
-  };
+  }, []);
 
-  const handleCreateCollection = async () => {
+  const handleCreateCollection = useCallback(async () => {
     setError(null);
     setSuccessMessage(null);
 
@@ -62,6 +64,7 @@ const CreateCollectionForm: React.FC = () => {
       await createCollection(name.trim(), symbol.trim(), metadataUrl);
 
       setSuccessMessage("Collection created successfully!");
+      await fetchUserCollections();
       setIsSubmitting(false);
 
       setFile(null);
@@ -73,7 +76,7 @@ const CreateCollectionForm: React.FC = () => {
       setError("Something went wrong. Please try again.");
       setIsSubmitting(false);
     }
-  };
+  }, [createCollection, description, file, name, setUploadedUrl, symbol, uploadFile, uploadMetadata]);
 
   return (
     <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-xl shadow-lg w-full max-w-md">

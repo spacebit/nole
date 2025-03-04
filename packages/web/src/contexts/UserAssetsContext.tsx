@@ -24,6 +24,7 @@ interface UserAssetsContextProps {
   nfts: CardItem[];
   nftsLoading: boolean;
   fetchNFTs: () => Promise<void>;
+  fetchUserCollections: () => Promise<void>;
 }
 
 const UserAssetsContext = createContext<UserAssetsContextProps | undefined>(
@@ -50,6 +51,22 @@ export const UserAssetsProvider = ({
   const [nfts, setWalletNFTs] = useState<CardItem[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
 
+  const fetchUserCollections = useCallback(async () => {
+    if (!walletAddress) return;
+  
+    setCollectionsLoading(true);
+    try {
+      const userCollections = await getCollectionsOf(walletAddress);
+      setCollectionAddresses(userCollections || []);
+      fetchedCollections.current = false; // Allow metadata to be fetched again
+    } catch (error) {
+      console.error("❌ Error fetching user collections:", error);
+    } finally {
+      setCollectionsLoading(false);
+    }
+  }, [walletAddress, getCollectionsOf]);
+
+  
   const fetchNFTs = useCallback(async () => {
     if (!walletAddress || !client) return;
 
@@ -172,8 +189,9 @@ export const UserAssetsProvider = ({
       nfts,
       nftsLoading,
       fetchNFTs,
+      fetchUserCollections
     }),
-    [collections, collectionsLoading, nfts, nftsLoading, fetchNFTs]
+    [collections, collectionsLoading, nfts, nftsLoading, fetchNFTs, fetchUserCollections]
   );
 
   return (
