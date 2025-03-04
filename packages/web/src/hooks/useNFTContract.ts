@@ -49,7 +49,11 @@ const useNFTContract = (contractAddress: Hex) => {
 
   const supportsINFT = async () => {
     if (!contract) return null;
-    return contract.read.supportsInterface([INFT_INTERFACE_ID]) as boolean;
+    try {
+      return contract.read.supportsInterface([INFT_INTERFACE_ID]) as boolean;
+    } catch {
+      return false
+    }
   };
 
   return {

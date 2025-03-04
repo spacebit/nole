@@ -1,20 +1,21 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import useCollectionRegistryContract from "@/hooks/useCollectionRegistry";
 import { getContract, Hex } from "@nilfoundation/niljs";
 import { useNil } from "@/contexts/NilContext";
 import { artifacts } from "@/lib/artifacts";
 import { usePinata } from "@/contexts/PinataContext";
-import { CardItem } from "@/types/card";
+import { CardItem, CollectionCard } from "@/types/card";
 import { INFT_INTERFACE_ID } from "@/lib/constants";
 
 interface UserAssetsContextProps {
-  collections: CardItem[];
+  collections: CollectionCard[];
   collectionsLoading: boolean;
-  walletNFTs: CardItem[];
+  nfts: CardItem[];
   nftsLoading: boolean;
+  fetchNFTs: () => Promise<void>;
 }
 
 const UserAssetsContext = createContext<UserAssetsContextProps | undefined>(
@@ -34,60 +35,64 @@ export const UserAssetsProvider = ({
   const { client } = useNil();
 
   const [collectionAddresses, setCollectionAddresses] = useState<Hex[]>([]);
-  const [collections, setCollections] = useState<CardItem[]>([]);
+  const [collections, setCollections] = useState<CollectionCard[]>([]);
   const [collectionsLoading, setCollectionsLoading] = useState(true);
   const fetchedCollections = useRef(false);
 
-  const [walletNFTs, setWalletNFTs] = useState<CardItem[]>([]);
+  const [nfts, setWalletNFTs] = useState<CardItem[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
 
-  /**
-   * Fetch tokens owned by the user and check which ones support INFT
-   */
-  useEffect(() => {
-    const fetchTokens = async () => {
-      if (!walletAddress || !client) return;
+  const fetchNFTs = useCallback(async () => {
+    if (!walletAddress || !client) return;
 
-      try {
-        setNftsLoading(true);
-        const tokens: Record<string, bigint> = await client.getTokens(
-          walletAddress,
-          "latest"
-        );
-        const tokenAddresses = Object.keys(tokens);
+    try {
+      setNftsLoading(true);
+      const tokens: Record<string, bigint> = await client.getTokens(
+        walletAddress,
+        "latest"
+      );
+      const tokenAddresses = Object.keys(tokens);
 
-        const supportedNfts = [];
+      const supportedNfts = [];
 
-        for (const address of tokenAddresses) {
-          const nftContract = getContract({
-            client: client!,
-            abi: artifacts.nft.abi,
-            address: address as Hex,
+      for (const address of tokenAddresses) {
+        const nftContract = getContract({
+          client: client!,
+          abi: artifacts.nft.abi,
+          address: address as Hex,
+        });
+
+        let isINFT = false;
+
+        try {
+          isINFT = (await nftContract.read.supportsInterface([
+            INFT_INTERFACE_ID,
+          ])) as boolean;
+        } catch {}
+
+        if (isINFT) {
+          const tokenURI = (await nftContract.read.tokenURI([])) as string;
+          const metadata = await fetchMetadata(tokenURI);
+          if (!metadata) throw Error("Cannot fetch metadata");
+
+          supportedNfts.push({
+            name: metadata.name,
+            imageUrl: metadata.image,
           });
-
-          const isINFT = await nftContract.read.supportsInterface([INFT_INTERFACE_ID])
-          if (isINFT) {
-            const tokenURI = await nftContract.read.tokenURI([]) as string;
-            const metadata = await fetchMetadata(tokenURI);
-            if (!metadata) throw Error("Cannot fetch metadata");
-
-            supportedNfts.push({
-              name: metadata.name,
-              imageUrl: metadata.image,
-            });
-          }
         }
-
-        setWalletNFTs(supportedNfts);
-      } catch (error) {
-        console.error("❌ Error fetching user tokens:", error);
-      } finally {
-        setNftsLoading(false);
       }
-    };
 
-    fetchTokens();
-  }, [client, fetchMetadata, walletAddress]);
+      setWalletNFTs(supportedNfts);
+    } catch (error) {
+      console.error("❌ Error fetching user tokens:", error);
+    } finally {
+      setNftsLoading(false);
+    }
+  }, [client, fetchMetadata, walletAddress])
+
+  useEffect(() => {
+    fetchNFTs();
+  }, [client, fetchMetadata, fetchNFTs, walletAddress]);
 
   /**
    * Fetch collections owned by the user
@@ -115,7 +120,7 @@ export const UserAssetsProvider = ({
       setCollectionsLoading(true);
 
       try {
-        const collectionsObj: CardItem[] = [];
+        const collectionsObj: CollectionCard[] = [];
 
         for (const address of collectionAddresses) {
           const collectionContract = getContract({
@@ -133,6 +138,7 @@ export const UserAssetsProvider = ({
           collectionsObj.push({
             name: metadata.name,
             imageUrl: metadata.image,
+            address
           });
         }
 
@@ -150,7 +156,7 @@ export const UserAssetsProvider = ({
 
   return (
     <UserAssetsContext.Provider
-      value={{ collections, collectionsLoading, walletNFTs, nftsLoading }}
+      value={{ collections, collectionsLoading, nfts: nfts, nftsLoading, fetchNFTs }}
     >
       {children}
     </UserAssetsContext.Provider>

@@ -1,1 +1,6 @@
-export type Collection = { name: string; symbol: string; contractURI: string };
+import { Hex } from "@nilfoundation/niljs";
+import { CardItem } from "./card";
+
+export interface Collection extends CardItem {
+  address: Hex
+}
