@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const Header: React.FC = () => {
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
+    <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-white shadow-md">
       {/* Logo */}
       <div className="flex items-center">
         <Link href="/">

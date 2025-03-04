@@ -12,14 +12,15 @@ import Island from "@/components/ui/Island";
 export default function Home() {
   const router = useRouter();
   const { walletAddress } = useNilWallet();
-  const { collections, collectionsLoading, nfts, nftsLoading } = useUserAssets();
+  const { collections, collectionsLoading, nfts, nftsLoading } =
+    useUserAssets();
 
   if (!walletAddress) {
-    return <Placeholder message="Nothing here" action="Connect your wallet" />;
+    return <Placeholder message="Nothing yet" action="Connect your wallet" />;
   }
 
   return (
-    <>
+    <div>
       {/* Top Action Buttons */}
       <div className="flex p-5">
         <div className="m-3">
@@ -27,7 +28,10 @@ export default function Home() {
             <Button onClick={() => router.push("/create-collection")}>
               Create a Collection
             </Button>
-            <Button onClick={() => router.push("/create-nft")}>
+            <Button
+              onClick={() => router.push("/create-nft")}
+              disabled={collectionsLoading || collections.length === 0}
+            >
               Create NFT
             </Button>
           </div>
@@ -41,7 +45,11 @@ export default function Home() {
               <Text variant="h2" className="mb-4">
                 Collections
               </Text>
-              <CardsList cards={collections} loading={collectionsLoading} variant="small" />
+              <CardsList
+                cards={collections}
+                loading={collectionsLoading}
+                variant="small"
+              />
             </div>
           </Island>
         )}
@@ -61,6 +69,6 @@ export default function Home() {
           )}
         </Island>
       </div>
-    </>
+    </div>
   );
 }
