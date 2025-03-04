@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getContract, Hex, PublicClient, waitTillCompleted } from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import { artifacts } from "../lib/artifacts";
-import { useNil } from "@/contexts/NilContext";
+import { useNilClient } from "@/contexts/NilClientContext";
 import { encodeFunctionData } from "viem";
 import { Collection$Type } from "../../../contracts/artifacts/contracts/Collection.sol/Collection";
 
@@ -10,7 +10,7 @@ type CollectionContract = ReturnType<typeof getContract<Collection$Type['abi'], 
 
 const useCollectionContract = (contractAddress: Hex) => {
   const { walletAddress } = useNilWallet();
-  const { client } = useNil();
+  const { client } = useNilClient();
   const [contract, setContract] = useState<CollectionContract | null>(null);
 
   useEffect(() => {

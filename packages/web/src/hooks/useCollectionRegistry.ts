@@ -7,7 +7,7 @@ import {
 } from "@nilfoundation/niljs";
 import { useNilWallet } from "../contexts/NilWalletContext";
 import { artifacts } from "../lib/artifacts";
-import { useNil } from "@/contexts/NilContext";
+import { useNilClient } from "@/contexts/NilClientContext";
 import { encodeFunctionData } from "viem";
 import { CollectionRegistry$Type } from "../../../contracts/artifacts/contracts/CollectionRegistry.sol/CollectionRegistry";
 
@@ -17,7 +17,7 @@ type CollectionRegistryContract = ReturnType<
 
 const useCollectionRegistryContract = (registryAddress: Hex) => {
   const { walletAddress } = useNilWallet();
-  const { client } = useNil();
+  const { client } = useNilClient();
   const [contract, setContract] = useState<CollectionRegistryContract | null>(
     null
   );

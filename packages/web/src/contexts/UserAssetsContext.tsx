@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback } f
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import useCollectionRegistryContract from "@/hooks/useCollectionRegistry";
 import { getContract, Hex } from "@nilfoundation/niljs";
-import { useNil } from "@/contexts/NilContext";
+import { useNilClient } from "@/contexts/NilClientContext";
 import { artifacts } from "@/lib/artifacts";
 import { usePinata } from "@/contexts/PinataContext";
 import { CardItem, CollectionCard } from "@/types/card";
@@ -32,7 +32,7 @@ export const UserAssetsProvider = ({
     process.env.NEXT_PUBLIC_REGISTRY_ADDRESS! as Hex
   );
   const { fetchMetadata } = usePinata();
-  const { client } = useNil();
+  const { client } = useNilClient();
 
   const [collectionAddresses, setCollectionAddresses] = useState<Hex[]>([]);
   const [collections, setCollections] = useState<CollectionCard[]>([]);
@@ -57,7 +57,7 @@ export const UserAssetsProvider = ({
 
       for (const address of tokenAddresses) {
         const nftContract = getContract({
-          client: client!,
+          client,
           abi: artifacts.nft.abi,
           address: address as Hex,
         });
@@ -117,6 +117,8 @@ export const UserAssetsProvider = ({
         return;
       }
 
+      if (!client) return;
+
       setCollectionsLoading(true);
 
       try {
@@ -124,7 +126,7 @@ export const UserAssetsProvider = ({
 
         for (const address of collectionAddresses) {
           const collectionContract = getContract({
-            client: client!,
+            client,
             abi: artifacts.collection.abi,
             address,
           });
@@ -156,7 +158,7 @@ export const UserAssetsProvider = ({
 
   return (
     <UserAssetsContext.Provider
-      value={{ collections, collectionsLoading, nfts: nfts, nftsLoading, fetchNFTs }}
+      value={{ collections, collectionsLoading, nfts, nftsLoading, fetchNFTs }}
     >
       {children}
     </UserAssetsContext.Provider>
