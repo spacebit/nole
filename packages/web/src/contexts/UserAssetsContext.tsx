@@ -15,13 +15,13 @@ import { getContract, Hex } from "@nilfoundation/niljs";
 import { useNilClient } from "@/contexts/NilClientContext";
 import { artifacts } from "@/lib/artifacts";
 import { usePinata } from "@/contexts/PinataContext";
-import { CardItem, CollectionCard } from "@/types/card";
 import { INFT_INTERFACE_ID } from "@/lib/constants";
+import { NFTMetadata, Metadata } from "@/types/metadata";
 
 interface UserAssetsContextProps {
-  collections: CollectionCard[];
+  collections: Metadata[];
   collectionsLoading: boolean;
-  nfts: CardItem[];
+  nfts: NFTMetadata[];
   nftsLoading: boolean;
   fetchNFTs: () => Promise<void>;
   fetchUserCollections: () => Promise<void>;
@@ -40,15 +40,15 @@ export const UserAssetsProvider = ({
   const { getCollectionsOf } = useCollectionRegistryContract(
     process.env.NEXT_PUBLIC_REGISTRY_ADDRESS! as Hex
   );
-  const { fetchMetadata } = usePinata();
+  const { fetchCollectionMetadata, fetchNFTMetadata } = usePinata();
   const { client } = useNilClient();
 
   const [collectionAddresses, setCollectionAddresses] = useState<Hex[]>([]);
-  const [collections, setCollections] = useState<CollectionCard[]>([]);
+  const [collections, setCollections] = useState<Metadata[]>([]);
   const [collectionsLoading, setCollectionsLoading] = useState(true);
   const fetchedCollections = useRef(false);
 
-  const [nfts, setWalletNFTs] = useState<CardItem[]>([]);
+  const [nfts, setWalletNFTs] = useState<NFTMetadata[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
 
   const fetchUserCollections = useCallback(async () => {
@@ -58,7 +58,7 @@ export const UserAssetsProvider = ({
     try {
       const userCollections = await getCollectionsOf(walletAddress);
       setCollectionAddresses(userCollections || []);
-      fetchedCollections.current = false; // Allow metadata to be fetched again
+      fetchedCollections.current = false;
     } catch (error) {
       console.error("❌ Error fetching user collections:", error);
     } finally {
@@ -97,13 +97,10 @@ export const UserAssetsProvider = ({
 
         if (isINFT) {
           const tokenURI = (await nftContract.read.tokenURI([])) as string;
-          const metadata = await fetchMetadata(tokenURI);
+          const metadata = await fetchNFTMetadata(tokenURI);
           if (!metadata) throw Error("Cannot fetch metadata");
 
-          supportedNfts.push({
-            name: metadata.name,
-            imageUrl: metadata.image,
-          });
+          supportedNfts.push(metadata);
         }
       }
 
@@ -113,11 +110,11 @@ export const UserAssetsProvider = ({
     } finally {
       setNftsLoading(false);
     }
-  }, [client, fetchMetadata, walletAddress]);
+  }, [client, fetchNFTMetadata, walletAddress]);
 
   useEffect(() => {
     fetchNFTs();
-  }, [client, fetchMetadata, fetchNFTs, walletAddress]);
+  }, [client, fetchNFTs, walletAddress]);
 
   /**
    * Fetch collections owned by the user
@@ -147,7 +144,7 @@ export const UserAssetsProvider = ({
       setCollectionsLoading(true);
 
       try {
-        const collectionsObj: CollectionCard[] = [];
+        const collectionsObj: Metadata[] = [];
 
         for (const address of collectionAddresses) {
           const collectionContract = getContract({
@@ -159,14 +156,10 @@ export const UserAssetsProvider = ({
           const contractUri = (await collectionContract.read.contractURI(
             []
           )) as string;
-          const metadata = await fetchMetadata(contractUri);
+          const metadata = await fetchCollectionMetadata(contractUri);
           if (!metadata) throw Error("Cannot fetch metadata");
 
-          collectionsObj.push({
-            name: metadata.name,
-            imageUrl: metadata.image,
-            address,
-          });
+          collectionsObj.push(metadata);
         }
 
         setCollections(collectionsObj);
@@ -180,7 +173,7 @@ export const UserAssetsProvider = ({
     };
 
     fetchCollectionsInfo();
-  }, [client, collectionAddresses, fetchMetadata]);
+  }, [client, collectionAddresses, fetchCollectionMetadata]);
 
   const contextValue = useMemo(
     () => ({

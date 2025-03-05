@@ -218,7 +218,7 @@ const CreateNFTForm: React.FC = () => {
             />
             <button
               onClick={() => handleRemoveAttribute(index)}
-              className="p-2 text-red-600 hover:text-red-800"
+              className="p-2 text-black-400 hover:text-black-800"
             >
               <FaTrash size={16} />
             </button>

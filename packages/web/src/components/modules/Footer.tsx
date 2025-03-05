@@ -4,7 +4,7 @@ import { FaTelegramPlane, FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-black text-white py-6 mt-auto">
+    <footer className="w-full bg-neutral-800 text-white py-6 mt-auto">
       <div className="container mx-auto flex justify-center space-x-6">
         <a
           href="https://t.me/andreevmaks"

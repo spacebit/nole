@@ -5,31 +5,35 @@ import Button from "../ui/Button";
 import { shortenAddress } from "@/lib/utils";
 import { useNilWallet } from "@/contexts/NilWalletContext";
 import Link from "next/link";
+import { LogOut } from "lucide-react";
 
 const ConnectButton: React.FC = () => {
-  const { walletInstalled, walletAddress, connectWallet, disconnectWallet } =
-    useNilWallet();
+  const { walletInstalled, walletAddress, connectWallet, disconnectWallet } = useNilWallet();
+
+  if (!walletInstalled()) {
+    return (
+      <Button>
+        <Link
+          href="https://chromewebstore.google.com/detail/nil-wallet/kfiailmjchdbjmadbkkldiahpggcjffp?hl=en&authuser=1"
+          target="_blank"
+        >
+          Install wallet
+        </Link>
+      </Button>
+    );
+  }
 
   return (
-    <>
-      {!walletInstalled() ? (
-        <Button>
-          <Link
-            href="https://chromewebstore.google.com/detail/nil-wallet/kfiailmjchdbjmadbkkldiahpggcjffp?hl=en&authuser=1"
-            target="_blank"
-          >
-            Install wallet
-          </Link>
-        </Button>
+    <Button variant={walletAddress ? "secondary" : "primary"} onClick={walletAddress ? disconnectWallet : connectWallet}>
+      {walletAddress ? (
+        <span className="flex items-center gap-2">
+          {shortenAddress(walletAddress)}
+          <LogOut size={16} />
+        </span>
       ) : (
-        <Button
-          variant={walletAddress ? "danger" : "primary"}
-          onClick={walletAddress ? disconnectWallet : connectWallet}
-        >
-          {walletAddress ? shortenAddress(walletAddress) : "Connect Wallet"}
-        </Button>
+        "Connect Wallet"
       )}
-    </>
+    </Button>
   );
 };
 
