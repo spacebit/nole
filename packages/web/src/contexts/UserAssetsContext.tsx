@@ -18,15 +18,14 @@ import { usePinata } from "@/contexts/PinataContext";
 import { INFT_INTERFACE_ID } from "@/lib/constants";
 import {
   NFTMetadataOffchain,
-  CollectionMetadataOffchain,
   CollectionMetadataFull,
   NFTMetadataFull,
 } from "@/types/metadata";
 
 interface UserAssetsContextProps {
-  collections: CollectionMetadataOffchain[];
+  collections: CollectionMetadataFull[];
   collectionsLoading: boolean;
-  nfts: NFTMetadataOffchain[];
+  nfts: NFTMetadataFull[];
   nftsLoading: boolean;
   fetchNFTs: () => Promise<void>;
   fetchUserCollections: () => Promise<void>;
