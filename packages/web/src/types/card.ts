@@ -2,7 +2,7 @@ import { Hex } from "@nilfoundation/niljs";
 
 export interface CardItem {
   name: string;
-  imageUrl: string;
+  image: string;
 }
 
 export interface CollectionCard extends CardItem {

@@ -13,13 +13,13 @@ const Loader: React.FC<LoaderProps> = ({ message, status = "loading" }) => {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    setVisible(true); // Always show when a new message comes in
+    setVisible(true);
 
     if (status !== "loading") {
       const timer = setTimeout(() => setVisible(false), 10000);
       return () => clearTimeout(timer);
     }
-  }, [message, status]); // Depend on message/status to reset visibility
+  }, [message, status]);
 
   return (
     <AnimatePresence>
@@ -31,11 +31,23 @@ const Loader: React.FC<LoaderProps> = ({ message, status = "loading" }) => {
           transition={{ duration: 0.3 }}
           className="fixed top-20 right-4 bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border w-72"
         >
-          {status === "loading" && <Loader2 className="animate-spin text-gray-500" size={24} />}
-          {status === "success" && <CheckCircle className="text-green-500" size={24} />}
+          {status === "loading" && (
+            <Loader2 className="animate-spin text-gray-500" size={24} />
+          )}
+          {status === "success" && (
+            <CheckCircle className="text-green-500" size={24} />
+          )}
           {status === "error" && <XCircle className="text-red-500" size={24} />}
 
-          <span className={`text-sm font-medium ${status === "success" ? "text-green-600" : status === "error" ? "text-red-600" : "text-gray-800"}`}>
+          <span
+            className={`text-sm font-medium ${
+              status === "success"
+                ? "text-green-600"
+                : status === "error"
+                ? "text-red-600"
+                : "text-gray-800"
+            }`}
+          >
             {message}
           </span>
         </motion.div>

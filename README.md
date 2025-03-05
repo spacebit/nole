@@ -9,12 +9,16 @@ This project introduces a decentralized NFT collection registry and minting syst
 ## Features
 
 🏗 Collection Factory: Deploy custom NFT collections dynamically.
+
 🔍 Collection Discovery: Easily retrieve collections owned by a specific address.
+
 🎨 NFT Minting: Mint unique NFTs within a collection.
+
 📜 On-Chain Metadata: NFTs store metadata, including URIs, securely on-chain.
+
 🔄 Nil Token Compatibility: Integrated with Nil’s token system for efficient transactions.
 
-## Smart Contract Architecture
+## Smart Contracts
 ### 1️⃣ CollectionRegistry – The Factory 🔨
 
 The `CollectionRegistry` contract acts as a factory for NFT collections. Users can create collections and track their owned collections.

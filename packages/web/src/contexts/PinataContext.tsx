@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Metadata } from "@/types/metadata";
+import { NFTMetadataOffchain, BasicMetadata, CollectionMetadataOffchain } from "@/types/metadata";
 
 interface PinataContextType {
   uploadedUrl: string | null;
@@ -15,8 +15,9 @@ interface PinataContextType {
   metadataUrl: string | null;
   setMetadataUrl: (url: string | null) => void;
   uploadFile: (file: File) => Promise<string | null>;
-  uploadMetadata: (metadata: Metadata) => Promise<string | null>;
-  fetchMetadata: (url: string) => Promise<Metadata | null>;
+  uploadMetadata: (metadata: BasicMetadata) => Promise<string | null>;
+  fetchCollectionMetadata: (url: string) => Promise<BasicMetadata | null>;
+  fetchNFTMetadata: (url: string) => Promise<NFTMetadataOffchain | null>;
   uploading: boolean;
 }
 
@@ -52,7 +53,7 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const uploadMetadata = useCallback(
-    async (metadata: Metadata): Promise<string | null> => {
+    async (metadata: BasicMetadata): Promise<string | null> => {
       try {
         setUploading(true);
         const metadataRequest = await fetch("/api/metadata", {
@@ -74,19 +75,27 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
-  const fetchMetadata = useCallback(
-    async (url: string): Promise<Metadata | null> => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch metadata");
+  const fetchMetadata = async <T extends BasicMetadata>(
+    url: string
+  ): Promise<T | null> => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch metadata");
 
-        const metadata: Metadata = await response.json();
-        return metadata;
-      } catch (error) {
-        console.error("❌ Error fetching metadata:", error);
-        return null;
-      }
-    },
+      const metadata: T = await response.json();
+      return metadata;
+    } catch (error) {
+      console.error("❌ Error fetching metadata:", error);
+      return null;
+    }
+  };
+
+  const fetchCollectionMetadata = useCallback(
+    (url: string) => fetchMetadata<CollectionMetadataOffchain>(url),
+    []
+  );
+  const fetchNFTMetadata = useCallback(
+    (url: string) => fetchMetadata<NFTMetadataOffchain>(url),
     []
   );
 
@@ -98,16 +107,18 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
       setMetadataUrl,
       uploadFile,
       uploadMetadata,
-      fetchMetadata,
       uploading,
+      fetchCollectionMetadata,
+      fetchNFTMetadata,
     }),
     [
       uploadedUrl,
       metadataUrl,
       uploadFile,
       uploadMetadata,
-      fetchMetadata,
       uploading,
+      fetchCollectionMetadata,
+      fetchNFTMetadata,
     ]
   );
 
