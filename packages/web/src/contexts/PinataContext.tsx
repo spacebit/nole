@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { NFTMetadata, Metadata } from "@/types/metadata";
+import { NFTMetadataOffchain, BasicMetadata, CollectionMetadataOffchain } from "@/types/metadata";
 
 interface PinataContextType {
   uploadedUrl: string | null;
@@ -15,9 +15,9 @@ interface PinataContextType {
   metadataUrl: string | null;
   setMetadataUrl: (url: string | null) => void;
   uploadFile: (file: File) => Promise<string | null>;
-  uploadMetadata: (metadata: Metadata) => Promise<string | null>;
-  fetchCollectionMetadata: (url: string) => Promise<Metadata | null>;
-  fetchNFTMetadata: (url: string) => Promise<NFTMetadata | null>;
+  uploadMetadata: (metadata: BasicMetadata) => Promise<string | null>;
+  fetchCollectionMetadata: (url: string) => Promise<BasicMetadata | null>;
+  fetchNFTMetadata: (url: string) => Promise<NFTMetadataOffchain | null>;
   uploading: boolean;
 }
 
@@ -53,7 +53,7 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const uploadMetadata = useCallback(
-    async (metadata: Metadata): Promise<string | null> => {
+    async (metadata: BasicMetadata): Promise<string | null> => {
       try {
         setUploading(true);
         const metadataRequest = await fetch("/api/metadata", {
@@ -75,7 +75,7 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
-  const fetchMetadata = async <T extends Metadata>(
+  const fetchMetadata = async <T extends BasicMetadata>(
     url: string
   ): Promise<T | null> => {
     try {
@@ -91,11 +91,11 @@ export const PinataProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const fetchCollectionMetadata = useCallback(
-    (url: string) => fetchMetadata<Metadata>(url),
+    (url: string) => fetchMetadata<CollectionMetadataOffchain>(url),
     []
   );
   const fetchNFTMetadata = useCallback(
-    (url: string) => fetchMetadata<NFTMetadata>(url),
+    (url: string) => fetchMetadata<NFTMetadataOffchain>(url),
     []
   );
 

@@ -16,12 +16,17 @@ import { useNilClient } from "@/contexts/NilClientContext";
 import { artifacts } from "@/lib/artifacts";
 import { usePinata } from "@/contexts/PinataContext";
 import { INFT_INTERFACE_ID } from "@/lib/constants";
-import { NFTMetadata, Metadata } from "@/types/metadata";
+import {
+  NFTMetadataOffchain,
+  CollectionMetadataOffchain,
+  CollectionMetadataFull,
+  NFTMetadataFull,
+} from "@/types/metadata";
 
 interface UserAssetsContextProps {
-  collections: Metadata[];
+  collections: CollectionMetadataOffchain[];
   collectionsLoading: boolean;
-  nfts: NFTMetadata[];
+  nfts: NFTMetadataOffchain[];
   nftsLoading: boolean;
   fetchNFTs: () => Promise<void>;
   fetchUserCollections: () => Promise<void>;
@@ -44,16 +49,16 @@ export const UserAssetsProvider = ({
   const { client } = useNilClient();
 
   const [collectionAddresses, setCollectionAddresses] = useState<Hex[]>([]);
-  const [collections, setCollections] = useState<Metadata[]>([]);
+  const [collections, setCollections] = useState<CollectionMetadataFull[]>([]);
   const [collectionsLoading, setCollectionsLoading] = useState(true);
   const fetchedCollections = useRef(false);
 
-  const [nfts, setWalletNFTs] = useState<NFTMetadata[]>([]);
+  const [nfts, setWalletNFTs] = useState<NFTMetadataFull[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
 
   const fetchUserCollections = useCallback(async () => {
     if (!walletAddress) return;
-  
+
     setCollectionsLoading(true);
     try {
       const userCollections = await getCollectionsOf(walletAddress);
@@ -66,7 +71,6 @@ export const UserAssetsProvider = ({
     }
   }, [walletAddress, getCollectionsOf]);
 
-  
   const fetchNFTs = useCallback(async () => {
     if (!walletAddress || !client) return;
 
@@ -78,7 +82,7 @@ export const UserAssetsProvider = ({
       );
       const tokenAddresses = Object.keys(tokens);
 
-      const supportedNfts = [];
+      const supportedNfts: NFTMetadataFull[] = [];
 
       for (const address of tokenAddresses) {
         const nftContract = getContract({
@@ -97,10 +101,19 @@ export const UserAssetsProvider = ({
 
         if (isINFT) {
           const tokenURI = (await nftContract.read.tokenURI([])) as string;
-          const metadata = await fetchNFTMetadata(tokenURI);
-          if (!metadata) throw Error("Cannot fetch metadata");
 
-          supportedNfts.push(metadata);
+          const [metadataOffchain, collectionAddress] = (await Promise.all([
+            fetchNFTMetadata(tokenURI),
+            nftContract.read.collectionAddress([]),
+          ])) as [NFTMetadataOffchain, Hex];
+
+          if (!metadataOffchain) throw Error("Cannot fetch metadata");
+
+          supportedNfts.push({
+            ...metadataOffchain,
+            tokenURI,
+            collectionAddress,
+          });
         }
       }
 
@@ -144,7 +157,7 @@ export const UserAssetsProvider = ({
       setCollectionsLoading(true);
 
       try {
-        const collectionsObj: Metadata[] = [];
+        const collectionsObj: CollectionMetadataFull[] = [];
 
         for (const address of collectionAddresses) {
           const collectionContract = getContract({
@@ -153,13 +166,24 @@ export const UserAssetsProvider = ({
             address,
           });
 
-          const contractUri = (await collectionContract.read.contractURI(
-            []
-          )) as string;
-          const metadata = await fetchCollectionMetadata(contractUri);
+          const [contractURI, symbol] = (await Promise.all([
+            collectionContract.read.contractURI([]),
+            collectionContract.read.symbol([]),
+          ])) as [string, string];
+
+          // Off-chain metadata
+          const metadata = await fetchCollectionMetadata(contractURI);
           if (!metadata) throw Error("Cannot fetch metadata");
 
-          collectionsObj.push(metadata);
+          // + on-chain metadata
+          const fullMetadata: CollectionMetadataFull = {
+            ...metadata,
+            contractURI,
+            symbol,
+            address,
+          };
+
+          collectionsObj.push(fullMetadata);
         }
 
         setCollections(collectionsObj);
@@ -182,9 +206,16 @@ export const UserAssetsProvider = ({
       nfts,
       nftsLoading,
       fetchNFTs,
-      fetchUserCollections
+      fetchUserCollections,
     }),
-    [collections, collectionsLoading, nfts, nftsLoading, fetchNFTs, fetchUserCollections]
+    [
+      collections,
+      collectionsLoading,
+      nfts,
+      nftsLoading,
+      fetchNFTs,
+      fetchUserCollections,
+    ]
   );
 
   return (
