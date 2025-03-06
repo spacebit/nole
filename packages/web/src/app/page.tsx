@@ -38,6 +38,7 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Collections */}
       <div className="flex flex-row gap-4 p-5">
         {(collectionsLoading || collections.length > 0) && (
           <Island className="w-64 flex-shrink-0">
@@ -49,11 +50,13 @@ export default function Home() {
                 cards={collections}
                 loading={collectionsLoading}
                 variant="small"
+                onCardClick={console.log}
               />
             </div>
           </Island>
         )}
 
+        {/* NFTs */}
         <Island className="flex-1">
           {nftsLoading ? (
             <CardsList cards={[]} loading={true} variant="large" />
@@ -62,10 +65,10 @@ export default function Home() {
               <Text variant="h2" className="mb-4">
                 Your NFTs
               </Text>
-              <CardsList cards={nfts} loading={false} variant="large" />
+              <CardsList cards={nfts} loading={false} variant="large" onCardClick={(card) => router.push(`/nft/${card.address}`)} />
             </div>
           ) : (
-            <Placeholder message="No NFTs found" action="Create NFT" />
+            <Placeholder message="No NFTs found" action="Create one" />
           )}
         </Island>
       </div>

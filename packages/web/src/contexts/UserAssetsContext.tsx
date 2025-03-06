@@ -27,6 +27,7 @@ interface UserAssetsContextProps {
   collectionsLoading: boolean;
   nfts: NFTMetadataFull[];
   nftsLoading: boolean;
+  fetchNFT: (address: Hex) => Promise<NFTMetadataFull | undefined>;
   fetchNFTs: () => Promise<void>;
   fetchUserCollections: () => Promise<void>;
 }
@@ -70,6 +71,47 @@ export const UserAssetsProvider = ({
     }
   }, [walletAddress, getCollectionsOf]);
 
+  const fetchNFT = useCallback(
+    async (address: Hex) => {
+      if (!client) return;
+
+      const nftContract = getContract({
+        client,
+        abi: artifacts.nft.abi,
+        address: address as Hex,
+      });
+
+      let isINFT = false;
+
+      try {
+        isINFT = (await nftContract.read.supportsInterface([
+          INFT_INTERFACE_ID,
+        ])) as boolean;
+      } catch {}
+
+      if (isINFT) {
+        const tokenURI = (await nftContract.read.tokenURI([])) as string;
+
+        const [metadataOffchain, collectionAddress] = (await Promise.all([
+          fetchNFTMetadata(tokenURI),
+          nftContract.read.collectionAddress([]),
+        ])) as [NFTMetadataOffchain, Hex];
+
+        if (!metadataOffchain) throw Error("Cannot fetch metadata");
+
+        const metadataFull: NFTMetadataFull = {
+          ...metadataOffchain,
+          tokenURI,
+          address,
+          collectionAddress,
+        };
+
+        return metadataFull;
+      }
+    },
+    [client, fetchNFTMetadata]
+  );
+
   const fetchNFTs = useCallback(async () => {
     if (!walletAddress || !client) return;
 
@@ -79,42 +121,11 @@ export const UserAssetsProvider = ({
         walletAddress,
         "latest"
       );
-      const tokenAddresses = Object.keys(tokens);
+      const tokenAddresses = Object.keys(tokens) as Hex[];
 
-      const supportedNfts: NFTMetadataFull[] = [];
-
-      for (const address of tokenAddresses) {
-        const nftContract = getContract({
-          client,
-          abi: artifacts.nft.abi,
-          address: address as Hex,
-        });
-
-        let isINFT = false;
-
-        try {
-          isINFT = (await nftContract.read.supportsInterface([
-            INFT_INTERFACE_ID,
-          ])) as boolean;
-        } catch {}
-
-        if (isINFT) {
-          const tokenURI = (await nftContract.read.tokenURI([])) as string;
-
-          const [metadataOffchain, collectionAddress] = (await Promise.all([
-            fetchNFTMetadata(tokenURI),
-            nftContract.read.collectionAddress([]),
-          ])) as [NFTMetadataOffchain, Hex];
-
-          if (!metadataOffchain) throw Error("Cannot fetch metadata");
-
-          supportedNfts.push({
-            ...metadataOffchain,
-            tokenURI,
-            collectionAddress,
-          });
-        }
-      }
+      const supportedNfts: NFTMetadataFull[] = await Promise.all(
+        tokenAddresses.map((addr) => fetchNFT(addr))
+      ).then((res) => res.filter((v) => !!v));
 
       setWalletNFTs(supportedNfts);
     } catch (error) {
@@ -122,7 +133,7 @@ export const UserAssetsProvider = ({
     } finally {
       setNftsLoading(false);
     }
-  }, [client, fetchNFTMetadata, walletAddress]);
+  }, [client, fetchNFT, walletAddress]);
 
   useEffect(() => {
     fetchNFTs();
@@ -204,6 +215,7 @@ export const UserAssetsProvider = ({
       collectionsLoading,
       nfts,
       nftsLoading,
+      fetchNFT,
       fetchNFTs,
       fetchUserCollections,
     }),
@@ -212,6 +224,7 @@ export const UserAssetsProvider = ({
       collectionsLoading,
       nfts,
       nftsLoading,
+      fetchNFT,
       fetchNFTs,
       fetchUserCollections,
     ]
