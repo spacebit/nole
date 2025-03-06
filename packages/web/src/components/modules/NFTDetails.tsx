@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Island from "@/components/ui/Island";
@@ -16,20 +16,17 @@ interface NFTDetailsProps {
 }
 
 const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
-  const { nfts, fetchNFTs } = useUserAssets();
+  const { nfts, removeNFT } = useUserAssets();
   const { transferNFT } = useNFTContract(nft.address);
-  const [own, setOwn] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (nfts.find((token) => token.address === nft.address)) {
-      setOwn(true);
-    }
+  const own = useMemo(() => {
+    return nfts.some((token) => token.address === nft.address);
   }, [nft.address, nfts]);
 
   const handleTransferNFT = async (recipient: Hex) => {
     await transferNFT(recipient);
-    await fetchNFTs();
+    removeNFT(nft);
   };
 
   return (
