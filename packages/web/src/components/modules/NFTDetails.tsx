@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
@@ -5,6 +7,9 @@ import Island from "@/components/ui/Island";
 import Text from "@/components/ui/Text";
 import { NFTMetadataFull } from "@/types/metadata";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
+import TransferNFTModal from "@/components/modules/TransferNFTModal";
+import useNFTContract from "@/hooks/useNFTContract";
+import { Hex } from "@nilfoundation/niljs";
 
 interface NFTDetailsProps {
   nft: NFTMetadataFull;
@@ -12,13 +17,19 @@ interface NFTDetailsProps {
 
 const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
   const { nfts } = useUserAssets();
+  const { transferNFT } = useNFTContract(nft.address);
   const [own, setOwn] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
   useEffect(() => {
     if (nfts.find((token) => token.address === nft.address)) {
       setOwn(true);
     }
   }, [nft.address, nfts]);
+
+  const handleTransferNFT = async (recipient: Hex) => {
+    await transferNFT(recipient);
+  };
 
   return (
     <Island className="flex flex-row items-start gap-8 p-6 md:p-8 w-full">
@@ -52,7 +63,10 @@ const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
         {/* Action Buttons */}
         {own && (
           <div className="mt-4 flex gap-4">
-            <Button variant="secondary" disabled>
+            <Button
+              variant="secondary"
+              onClick={() => setIsTransferModalOpen(true)}
+            >
               Transfer
             </Button>
             <Button variant="danger" disabled>
@@ -85,6 +99,13 @@ const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
           </div>
         )}
       </div>
+
+      {/* Transfer Modal */}
+      <TransferNFTModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        onTransfer={handleTransferNFT}
+      />
     </Island>
   );
 };

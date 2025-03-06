@@ -121,7 +121,9 @@ export const UserAssetsProvider = ({
         walletAddress,
         "latest"
       );
-      const tokenAddresses = Object.keys(tokens) as Hex[];
+      const nonZeroTokens = Object.entries(tokens).filter(([, value]) => value !== BigInt(0));
+
+      const tokenAddresses = nonZeroTokens.map(([addr]) => addr) as Hex[];
 
       const supportedNfts: NFTMetadataFull[] = await Promise.all(
         tokenAddresses.map((addr) => fetchNFT(addr))
