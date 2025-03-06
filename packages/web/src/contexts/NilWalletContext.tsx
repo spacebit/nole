@@ -5,6 +5,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -17,19 +18,17 @@ interface NilWalletContextType {
   walletInstalled: () => boolean;
 }
 
-const NilWalletContext = createContext<NilWalletContextType | undefined>(
-  undefined
-);
+const NilWalletContext = createContext<NilWalletContextType | undefined>(undefined);
 
-export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [walletAddress, setWalletAddress] = useState<Hex | null>(null);
 
+  // Check if wallet is installed
   const walletInstalled = useCallback(() => {
     return typeof window !== "undefined" && window.nil ? true : false;
   }, []);
 
+  // Connect Wallet & Store State
   const connectWallet = useCallback(async () => {
     if (typeof window !== "undefined" && window.nil) {
       try {
@@ -38,24 +37,26 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
         });
         if (accounts && accounts.length > 0) {
           setWalletAddress(accounts[0]);
+          localStorage.setItem("walletConnected", "true"); // Store connection flag
           console.log("✅ Wallet connected:", accounts[0]);
         }
       } catch (error) {
         console.error("❌ Failed to connect wallet:", error);
       }
     } else {
-      console.error(
-        "❌ =nil; Wallet Extension not found. Install the extension."
-      );
+      console.error("❌ =nil; Wallet Extension not found. Install the extension.");
     }
   }, []);
 
-  const disconnectWallet = () => {
+  // Disconnect Wallet
+  const disconnectWallet = useCallback(() => {
     if (walletAddress) {
       setWalletAddress(null);
+      localStorage.removeItem("walletConnected"); // Remove connection flag
     }
-  };
+  }, [walletAddress]);
 
+  // Send Transactions
   const sendTransaction = useCallback(
     async (to: string, value: number): Promise<string | null> => {
       if (!walletAddress) {
@@ -80,6 +81,16 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
     [walletAddress]
   );
 
+  // Auto-Reconnect Wallet if Previously Connected
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const wasConnected = localStorage.getItem("walletConnected");
+    if (wasConnected === "true") {
+      connectWallet(); // Auto-reconnect if flag exists
+    }
+  }, [connectWallet]);
+
   const contextValue = useMemo(
     () => ({
       walletAddress,
@@ -88,20 +99,10 @@ export const NilWalletProvider: React.FC<{ children: React.ReactNode }> = ({
       sendTransaction,
       walletInstalled,
     }),
-    [
-      walletAddress,
-      connectWallet,
-      disconnectWallet,
-      sendTransaction,
-      walletInstalled,
-    ]
+    [walletAddress, connectWallet, disconnectWallet, sendTransaction, walletInstalled]
   );
 
-  return (
-    <NilWalletContext.Provider value={contextValue}>
-      {children}
-    </NilWalletContext.Provider>
-  );
+  return <NilWalletContext.Provider value={contextValue}>{children}</NilWalletContext.Provider>;
 };
 
 export const useNilWallet = (): NilWalletContextType => {
