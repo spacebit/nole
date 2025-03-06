@@ -26,6 +26,8 @@ interface UserAssetsContextProps {
   collections: CollectionMetadataFull[];
   collectionsLoading: boolean;
   nfts: NFTMetadataFull[];
+  addNFT: (nft: NFTMetadataFull) => void;
+  removeNFT: (nft: NFTMetadataFull) => void;
   nftsLoading: boolean;
   fetchNFT: (address: Hex) => Promise<NFTMetadataFull | undefined>;
   fetchNFTs: () => Promise<void>;
@@ -53,8 +55,25 @@ export const UserAssetsProvider = ({
   const [collectionsLoading, setCollectionsLoading] = useState(true);
   const fetchedCollections = useRef(false);
 
-  const [nfts, setWalletNFTs] = useState<NFTMetadataFull[]>([]);
+  const [nfts, setNFTs] = useState<NFTMetadataFull[]>([]);
   const [nftsLoading, setNftsLoading] = useState(true);
+
+  const addNFT = useCallback(
+    (nft: NFTMetadataFull) => {
+      setNFTs((prevNFTs) => {
+        if (prevNFTs.some((t) => t.address === nft.address)) return prevNFTs;
+        return [...prevNFTs, nft];
+      });
+    },
+    []
+  );
+
+  const removeNFT = useCallback(
+    (nft: NFTMetadataFull) => {
+      setNFTs((prevNFTs) => [...prevNFTs.filter((t) => t.address !== nft.address)]);
+    },
+    [setNFTs]
+  );  
 
   const fetchUserCollections = useCallback(async () => {
     if (!walletAddress) return;
@@ -129,7 +148,7 @@ export const UserAssetsProvider = ({
         tokenAddresses.map((addr) => fetchNFT(addr))
       ).then((res) => res.filter((v) => !!v));
 
-      setWalletNFTs(supportedNfts);
+      setNFTs(supportedNfts);
     } catch (error) {
       console.error("❌ Error fetching user tokens:", error);
     } finally {
@@ -216,6 +235,8 @@ export const UserAssetsProvider = ({
       collections,
       collectionsLoading,
       nfts,
+      addNFT,
+      removeNFT,
       nftsLoading,
       fetchNFT,
       fetchNFTs,
@@ -225,6 +246,8 @@ export const UserAssetsProvider = ({
       collections,
       collectionsLoading,
       nfts,
+      addNFT,
+      removeNFT,
       nftsLoading,
       fetchNFT,
       fetchNFTs,

@@ -86,7 +86,7 @@ const useCollectionContract = (contractAddress: Hex) => {
         const txHash = await window.nil!.request({
           method: "eth_sendTransaction",
           params: [tx],
-        });
+        }) as Hex;
         await waitTillCompleted(client, txHash);
         console.log("✅ Mint transaction sent:", txHash);
         return txHash;
