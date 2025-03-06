@@ -25,6 +25,7 @@ export interface NFTMetadataOffchain extends BasicMetadata {
 
 export interface NFTMetadataOnchain {
   tokenURI: string;
+  address: Hex;
   collectionAddress: Hex;
 }
 
