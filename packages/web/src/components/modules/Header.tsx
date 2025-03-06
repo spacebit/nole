@@ -26,7 +26,7 @@ const Header: React.FC = () => {
         <Link href="/" className="text-gray-800 hover:text-black">
           Minter
         </Link>
-        <span className="text-gray-400 cursor-not-allowed">Marketplace (Coming Soon)</span>
+        <span className="text-gray-400 cursor-not-allowed">Market (soon)</span>
       </nav>
 
       {/* Connect Button */}

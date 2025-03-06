@@ -35,6 +35,7 @@ const CreateNFTForm: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFile = e.target.files[0];
+      e.target.value = "";
       setFile(newFile);
       setPreviewUrl(URL.createObjectURL(newFile));
     }
