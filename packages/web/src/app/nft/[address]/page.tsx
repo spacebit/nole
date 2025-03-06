@@ -1,48 +1,42 @@
 "use client";
 
+import { useParams, notFound } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
+import NFTDetails from "@/components/modules/NFTDetails";
 import { NFTMetadataFull } from "@/types/metadata";
 import { Hex } from "@nilfoundation/niljs";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
-export default function TokenPage() {
+export default function NFTPage() {
   const params = useParams<{ address: Hex }>();
   const { nfts, fetchNFT } = useUserAssets();
   const [nft, setNFT] = useState<NFTMetadataFull | null>(null);
 
   useEffect(() => {
-    const setNFTCard = async () => {
-      const nft = nfts.find((token) => token.address === params.address);
-
+    const showNFT = async () => {
       try {
-        if (nft) {
-          setNFT(nft);
+        if (!params.address) return;
+        const selectedNft = nfts.find((nft) => nft.address === params.address);
+        if (selectedNft) {
+          setNFT(selectedNft);
         } else {
           const nft = await fetchNFT(params.address);
-          if (!nft) throw Error("NFT not found")
+          if (!nft) notFound();
           setNFT(nft);
         }
       } catch {
-        // TODO
+        notFound();
       }
-    }
+    };
 
-    setNFTCard();
-  }, [fetchNFT, nfts, params.address]);
+    showNFT();
+  }, [fetchNFT, nfts, params]);
+
+  if (!nft) return null;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Token Page</h1>
-      {nft ? (
-        <pre className="bg-gray-100 p-4 mt-4 rounded-md text-sm">
-          {JSON.stringify(nft, null, 2)}
-        </pre>
-      ) : (
-        <p className="mt-4 text-lg font-semibold">
-          Token Address: {params.address}
-        </p>
-      )}
+    <div className="flex justify-center p-10">
+      <NFTDetails nft={nft} />
     </div>
   );
 }
