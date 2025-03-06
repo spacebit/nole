@@ -1,29 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { useLoader } from "@/contexts/LoaderContext";
 
-interface LoaderProps {
-  message: string;
-  status?: "loading" | "success" | "error";
-}
-
-const Loader: React.FC<LoaderProps> = ({ message, status = "loading" }) => {
-  const [visible, setVisible] = useState(true);
+const Loader: React.FC = () => {
+  const { loaderState, hideLoader } = useLoader();
+  const { message, status } = loaderState || {};
 
   useEffect(() => {
-    setVisible(true);
-
-    if (status !== "loading") {
-      const timer = setTimeout(() => setVisible(false), 10000);
+    if (status !== "loading" && message) {
+      const timer = setTimeout(() => hideLoader(), 5000);
       return () => clearTimeout(timer);
     }
-  }, [message, status]);
+  }, [message, status, hideLoader]);
 
   return (
     <AnimatePresence>
-      {visible && (
+      {message && (
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}

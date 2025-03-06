@@ -8,7 +8,7 @@ import Text from "@/components/ui/Text";
 import useCollectionRegistry from "@/hooks/useCollectionRegistry";
 import { Hex } from "@nilfoundation/niljs";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
-import Loader from "@/components/ui/Loader";
+import { useLoader } from "@/contexts/LoaderContext";
 
 const CreateCollectionForm: React.FC = () => {
   const { setUploadedUrl, uploadFile, uploadMetadata, uploading } = usePinata();
@@ -20,7 +20,7 @@ const CreateCollectionForm: React.FC = () => {
   const [description, setDescription] = useState("");
   const [symbol, setSymbol] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ message: string; status: "loading" | "success" | "error" } | null>(null);
+  const { showLoader, hideLoader } = useLoader();
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -28,59 +28,60 @@ const CreateCollectionForm: React.FC = () => {
       e.target.value = "";
       setFile(newFile);
       setPreviewUrl(URL.createObjectURL(newFile));
-      setStatusMessage(null);
     }
   }, []);
 
   const handleCreateCollection = useCallback(async () => {
-    setStatusMessage({ message: "Uploading collection...", status: "loading" });
+    showLoader("Uploading collection...", "loading");
     setIsSubmitting(true);
-
+  
     if (!file || !name.trim() || !description.trim() || !symbol.trim()) {
-      setStatusMessage({ message: "Please fill out all fields and upload an image.", status: "error" });
+      showLoader("Please fill out all fields and upload an image.", "error");
+      setTimeout(hideLoader, 5000);
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
       const imageUrl = await uploadFile(file);
       if (!imageUrl) {
-        setStatusMessage({ message: "Image upload failed.", status: "error" });
-        setIsSubmitting(false);
+        showLoader("Image upload failed.", "error");
+        setTimeout(hideLoader, 5000);
         return;
       }
-
+  
       setUploadedUrl(imageUrl);
       const metadata = { name, description, image: imageUrl };
       const metadataUrl = await uploadMetadata(metadata);
       if (!metadataUrl) {
-        setStatusMessage({ message: "Metadata upload failed.", status: "error" });
-        setIsSubmitting(false);
+        showLoader("Metadata upload failed.", "error");
+        setTimeout(hideLoader, 5000);
         return;
       }
-
+  
       await createCollection(name.trim(), symbol.trim(), metadataUrl);
-      setStatusMessage({ message: "Collection created successfully!", status: "success" });
-
+      showLoader("Collection created successfully!", "success");
+  
       await fetchUserCollections();
-      setIsSubmitting(false);
-
+  
       setFile(null);
       setPreviewUrl(null);
       setName("");
       setDescription("");
       setSymbol("");
+  
+      setTimeout(hideLoader, 5000);
     } catch {
-      setStatusMessage({ message: "Something went wrong.", status: "error" });
+      showLoader("Something went wrong.", "error");
+      setTimeout(hideLoader, 5000);
+    } finally {
       setIsSubmitting(false);
     }
-  }, [createCollection, description, fetchUserCollections, file, name, setUploadedUrl, symbol, uploadFile, uploadMetadata]);
-
+  }, [createCollection, description, fetchUserCollections, file, name, setUploadedUrl, showLoader, symbol, uploadFile, uploadMetadata, hideLoader]);
+      
   return (
     <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-xl shadow-lg w-full max-w-md">
       <Text variant="h1">Create a Collection</Text>
-
-      {statusMessage && <Loader message={statusMessage.message} status={statusMessage.status} />}
 
       <label className="relative w-[300px] h-[300px] cursor-pointer group border border-gray-300 rounded-lg flex items-center justify-center">
         <input type="file" className="hidden" onChange={handleFileChange} />

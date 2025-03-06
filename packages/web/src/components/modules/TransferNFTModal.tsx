@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { assertIsAddress, Hex } from "@nilfoundation/niljs";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import Loader from "@/components/ui/Loader";
+import { useLoader } from "@/contexts/LoaderContext";
 
 interface TransferNFTModalProps {
   isOpen: boolean;
@@ -17,31 +17,30 @@ const TransferNFTModal: React.FC<TransferNFTModalProps> = ({
   onClose,
   onTransfer,
 }) => {
+  const { showLoader, hideLoader } = useLoader();
   const [recipient, setRecipient] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{
-    message: string;
-    status: "loading" | "success" | "error";
-  } | null>(null);
 
   const handleTransfer = async () => {
     try {
       setError("");
       assertIsAddress(recipient);
-      setStatusMessage({ message: "Transferring NFT...", status: "loading" });
+      showLoader("Transferring NFT...", "loading");
       setIsSubmitting(true);
 
       await onTransfer(recipient as Hex);
 
-      setStatusMessage({ message: "NFT Transferred Successfully!", status: "success" });
+      showLoader("NFT Transferred Successfully!", "success");
 
       setTimeout(() => {
         onClose();
+        hideLoader();
       }, 2000);
     } catch {
       setError("Invalid Ethereum address");
-      setStatusMessage({ message: "Transfer failed.", status: "error" });
+      showLoader("Transfer failed.", "error");
+      setTimeout(hideLoader, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -50,10 +49,6 @@ const TransferNFTModal: React.FC<TransferNFTModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2 className="text-lg font-semibold mb-4">Transfer NFT</h2>
-      
-      {statusMessage && (
-        <Loader message={statusMessage.message} status={statusMessage.status} />
-      )}
 
       <input
         type="text"

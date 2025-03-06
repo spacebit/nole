@@ -16,7 +16,7 @@ interface NFTDetailsProps {
 }
 
 const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
-  const { nfts } = useUserAssets();
+  const { nfts, fetchNFTs } = useUserAssets();
   const { transferNFT } = useNFTContract(nft.address);
   const [own, setOwn] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -29,6 +29,7 @@ const NFTDetails: React.FC<NFTDetailsProps> = ({ nft }) => {
 
   const handleTransferNFT = async (recipient: Hex) => {
     await transferNFT(recipient);
+    await fetchNFTs();
   };
 
   return (
