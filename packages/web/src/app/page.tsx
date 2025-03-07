@@ -8,6 +8,7 @@ import { useNilWallet } from "@/contexts/NilWalletContext";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
 import Placeholder from "@/components/modules/Placeholder";
 import Island from "@/components/ui/Island";
+import CollectionList from "@/components/modules/CollectionList";
 
 export default function Home() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function Home() {
     <div>
       {/* Top Action Buttons */}
       <div className="flex p-5">
-        <div className="m-3">
+        <div className="mt-5">
           <div className="flex gap-4">
             <Button onClick={() => router.push("/create-collection")}>
               Create a Collection
@@ -40,21 +41,7 @@ export default function Home() {
 
       {/* Collections */}
       <div className="flex flex-row gap-4 p-5">
-        {(collectionsLoading || collections.length > 0) && (
-          <Island className="w-64 flex-shrink-0">
-            <div className="flex flex-col items-center text-center">
-              <Text variant="h2" className="mb-4">
-                Collections
-              </Text>
-              <CardsList
-                cards={collections}
-                loading={collectionsLoading}
-                variant="small"
-                onCardClick={console.log}
-              />
-            </div>
-          </Island>
-        )}
+        <CollectionList collections={collections} loading={collectionsLoading} />
 
         {/* NFTs */}
         <Island className="flex-1">

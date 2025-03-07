@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/logo.svg" alt="Logo" width="120"/>
+  <img src="./packages/web/public/logo.svg" alt="Logo" width="180"/>
 </p>
 
 ## Overview
@@ -42,7 +42,7 @@ Each Collection contract represents a separate NFT collection, allowing the owne
 - `ownerOf(_tokenId)`: Retrieves the owner of a specific token.
 - `tokenURI(_tokenId)`: Returns the metadata URI of a token.
 
-### 3️⃣ NFT – The Tokenized Asset 🎭
+### 3️⃣ NFT
 
 Each NFT is implemented using Nil’s token system, inheriting `NilTokenBase` for efficient transactions.
 

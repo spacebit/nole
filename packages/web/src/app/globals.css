@@ -2,14 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme Tokens */
+:root {
+  --color-primary: #2B2B2B;
+  --color-secondary: #ffffff;
+  --color-border: #d1d5db;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+
+  --font-body: var(--font-jetbrains-mono), sans-serif;
+  --font-heading: var(--font-unbounded), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+
+  --border-radius: 0.5rem;
+  --transition-default: all 0.2s ease-in-out;
+}
+
 body {
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-body);
 }
 
 h1, h2, h3 {
-  font-family: var(--font-unbounded), sans-serif;
+  font-family: var(--font-heading);
 }
 
 code, .mono {
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-mono);
+}
+
+/* UI Components */
+.ui-button {
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-bold rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  border-radius: var(--border-radius);
+  transition: var(--transition-default);
+}
+
+.ui-button.primary {
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+.ui-button.primary:hover {
+  background-color: #1f1f1f;
+}
+
+.ui-button.secondary {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+}
+
+.ui-button.secondary:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.ui-button.danger {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.ui-button.danger:hover {
+  background-color: var(--color-danger-hover);
+}
+
+/* Disabled State */
+.ui-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Spinner */
+.ui-spinner {
+  @apply animate-spin mr-2 border-2 border-t-transparent rounded-full;
+  border-color: currentColor;
+  width: 1rem;
+  height: 1rem;
 }

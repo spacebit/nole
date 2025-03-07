@@ -8,3 +8,7 @@ export function shortenAddress(address: string): string {
   if (!address || address.length < 8) return address;
   return `${address.slice(0, 7)}...${address.slice(-3)}`;
 }
+
+export function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(" ");
+}

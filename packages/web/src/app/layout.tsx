@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Unbounded } from "next/font/google";
+import {  Unbounded, JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Header from "@/components/modules/Header";
 import Footer from "@/components/modules/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
+
 
 const unbounded = Unbounded({
   variable: "--font-unbounded",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -32,10 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${unbounded.variable} antialiased`}
-      >
+    <html lang="en" className={`${jetbrainsMono.variable} ${inter.variable} ${unbounded.variable}`}>
+      <body className="antialiased">
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header />
