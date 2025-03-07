@@ -12,10 +12,10 @@ const Text: React.FC<TextProps> = ({ variant = "p", className = "", children, ..
   const Tag: ElementType = variant;
 
   const baseStyles = {
-    h1: "text-4xl font-bold tracking-tight",
-    h2: "text-3xl font-bold tracking-tight",
-    h3: "text-2xl font-semibold tracking-tight",
-    h4: "text-xl font-medium tracking-tight",
+    h1: "text-4xl font-bold tracking-tight mt-6 mb-4",
+    h2: "text-3xl font-bold tracking-tight mt-5 mb-3",
+    h3: "text-2xl font-semibold tracking-tight mt-4 mb-3",
+    h4: "text-xl font-medium tracking-tight mt-3 mb-2",
     p: "text-base leading-relaxed",
     span: "text-sm",
     strong: "font-bold",

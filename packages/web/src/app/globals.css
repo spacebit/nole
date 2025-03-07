@@ -10,9 +10,9 @@
   --color-danger: #ef4444;
   --color-danger-hover: #dc2626;
 
-  --font-body: var(--font-geist-sans), sans-serif;
+  --font-body: var(--font-jetbrains-mono), sans-serif;
   --font-heading: var(--font-unbounded), sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 
   --border-radius: 0.5rem;
   --transition-default: all 0.2s ease-in-out;
