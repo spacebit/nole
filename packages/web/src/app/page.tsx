@@ -23,7 +23,7 @@ export default function Home() {
     <div>
       {/* Top Action Buttons */}
       <div className="flex p-5">
-        <div className="m-3">
+        <div className="mt-5">
           <div className="flex gap-4">
             <Button onClick={() => router.push("/create-collection")}>
               Create a Collection
