@@ -2,8 +2,17 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, X } from "lucide-react";
 import { useLoader } from "@/contexts/LoaderContext";
+import Text from "@/components/ui/Text";
+import { cn } from "@/lib/utils";
+
+const LoaderIcon: React.FC<{ status?: "loading" | "success" | "error" }> = ({ status }) => {
+  if (status === "loading") return <Loader2 className="animate-spin text-gray-500" size={24} />;
+  if (status === "success") return <CheckCircle className="text-green-500" size={24} />;
+  if (status === "error") return <XCircle className="text-red-500" size={24} />;
+  return null;
+};
 
 const Loader: React.FC = () => {
   const { loaderState, hideLoader } = useLoader();
@@ -25,26 +34,24 @@ const Loader: React.FC = () => {
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.3 }}
           className="fixed top-20 right-4 bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border w-72"
+          role="status"
+          aria-live="polite"
         >
-          {status === "loading" && (
-            <Loader2 className="animate-spin text-gray-500" size={24} />
-          )}
-          {status === "success" && (
-            <CheckCircle className="text-green-500" size={24} />
-          )}
-          {status === "error" && <XCircle className="text-red-500" size={24} />}
-
-          <span
-            className={`text-sm font-medium ${
-              status === "success"
-                ? "text-green-600"
-                : status === "error"
-                ? "text-red-600"
-                : "text-gray-800"
-            }`}
+          <LoaderIcon status={status} />
+          <Text
+            variant="span"
+            className={cn(
+              "text-sm font-medium flex-1",
+              status === "success" && "text-green-600",
+              status === "error" && "text-red-600",
+              status === "loading" && "text-gray-800"
+            )}
           >
             {message}
-          </span>
+          </Text>
+          <button onClick={hideLoader} className="text-gray-400 hover:text-gray-600 transition">
+            <X size={18} />
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

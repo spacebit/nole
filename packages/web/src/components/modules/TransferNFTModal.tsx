@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { assertIsAddress, Hex } from "@nilfoundation/niljs";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Text from "@/components/ui/Text";
 import { useLoader } from "@/contexts/LoaderContext";
 
 interface TransferNFTModalProps {
@@ -12,11 +14,7 @@ interface TransferNFTModalProps {
   onTransfer: (recipient: Hex) => Promise<void>;
 }
 
-const TransferNFTModal: React.FC<TransferNFTModalProps> = ({
-  isOpen,
-  onClose,
-  onTransfer,
-}) => {
+const TransferNFTModal: React.FC<TransferNFTModalProps> = ({ isOpen, onClose, onTransfer }) => {
   const { showLoader, hideLoader } = useLoader();
   const [recipient, setRecipient] = useState("");
   const [error, setError] = useState("");
@@ -48,16 +46,15 @@ const TransferNFTModal: React.FC<TransferNFTModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h2 className="text-lg font-semibold mb-4">Transfer NFT</h2>
+      <Text variant="h3" className="mb-4">Transfer NFT</Text>
 
-      <input
+      <Input
         type="text"
         placeholder="Recipient Address"
-        className="w-full p-2 border border-gray-300 rounded-lg"
         value={recipient}
         onChange={(e) => setRecipient(e.target.value)}
+        error={error}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 
       <div className="flex justify-end mt-4 gap-2">
         <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
