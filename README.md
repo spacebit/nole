@@ -58,11 +58,11 @@ Each NFT is implemented using Nil’s token system, inheriting `NilTokenBase` fo
 
 ## What is next
 
-### NFT transfer
+### 1. Collection management
 
-Not supported yet.
+### 2. Drops
 
-### NFT Marketplace
+### 3. Marketplace
 
 A `Marketplace.sol` for trading NFTs will be introduced in future updates. It will enable users to list NFTs for sale, securely process transactions, and manage balances using Nil’s token system. The marketplace will support native and custom tokens for payments, virtual balance tracking, and asynchronous order handling.
 
