@@ -15,13 +15,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    if (!file.type.startsWith("image/")) {
+      console.error("❌ Invalid file type provided.");
+      return NextResponse.json({ error: "Only image files are allowed" }, { status: 415 });
+    }
+
     if (file.size > MAX_FILE_SIZE) {
       console.error("❌ File is too large.");
       return NextResponse.json({ error: "File size exceeds 1MB limit" }, { status: 413 });
     }
 
     console.log("📤 Uploading file to Pinata...");
-
     const uploadData = await pinata.upload.file(file);
     console.log("✅ File uploaded:", uploadData);
 
@@ -34,3 +38,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

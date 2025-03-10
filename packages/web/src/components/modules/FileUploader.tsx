@@ -24,6 +24,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect }) => {
   }, [file]);
 
   const handleFileSelection = (selectedFile: File) => {
+    if (!selectedFile.type.startsWith("image/")) {
+      setError("Only image files are allowed.");
+      setFile(null);
+      onFileSelect(null);
+      return;
+    }
+
     if (selectedFile.size > MAX_FILE_SIZE) {
       setError("File size exceeds 1MB limit.");
       setFile(null);
@@ -72,7 +79,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileSelect }) => {
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
       >
-        <input type="file" className="hidden" onChange={handleFileChange} />
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+
         {previewUrl ? (
           <Image
             src={previewUrl}
