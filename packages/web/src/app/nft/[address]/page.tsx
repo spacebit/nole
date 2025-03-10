@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useUserAssets } from "@/contexts/UserAssetsContext";
 import NFTDetails from "@/components/modules/NFTDetails";
 import { NFTMetadataFull } from "@/types/metadata";
@@ -12,25 +12,30 @@ export default function NFTPage() {
   const { nfts, fetchNFT } = useUserAssets();
   const [nft, setNFT] = useState<NFTMetadataFull | null>(null);
 
+  const selectedNft = useMemo(
+    () => nfts.find((n) => n.address === params.address),
+    [nfts, params.address]
+  );
+
   useEffect(() => {
-    const showNFT = async () => {
+    if (!params.address || nft) return;
+
+    const fetchAndSetNFT = async () => {
       try {
-        if (!params.address) return;
-        const selectedNft = nfts.find((nft) => nft.address === params.address);
         if (selectedNft) {
           setNFT(selectedNft);
         } else {
-          const nft = await fetchNFT(params.address);
-          if (!nft) notFound();
-          setNFT(nft);
+          const fetchedNft = await fetchNFT(params.address);
+          if (!fetchedNft) notFound();
+          setNFT(fetchedNft);
         }
       } catch {
         notFound();
       }
     };
 
-    showNFT();
-  }, [fetchNFT, nfts, params]);
+    fetchAndSetNFT();
+  }, [params.address, selectedNft, fetchNFT, nft]);
 
   if (!nft) return null;
 

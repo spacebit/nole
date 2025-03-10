@@ -48,22 +48,21 @@ export class XContract<T extends Abi> {
     return new XContract(this.abi, wallet, this.address);
   }
 
-  async sendMessage<functionName extends ContractFunctionName<T>>(
+  async sendTransaction<functionName extends ContractFunctionName<T>>(
     params: Omit<EncodeFunctionDataParameters<T, functionName>, "abi">,
-    messageTokens: MessageTokens,
+    messageTokens?: MessageTokens,
     expectSuccess = true
   ) {
-    const receipts = await this.wallet.sendMessage({
+    const receipts = await this.wallet.sendTransaction({
       to: this.address,
-      feeCredit: messageTokens.feeCredit,
-      value: messageTokens.value,
-      tokens: messageTokens.tokens,
       data: encodeFunctionData({
         abi: this.abi as any,
         functionName: params.functionName,
         args: params.args as any,
       }),
-
+      feeCredit: messageTokens?.feeCredit,
+      value: messageTokens?.value,
+      tokens: messageTokens?.tokens,
     });
 
     if (expectSuccess) expectAllReceiptsSuccess(receipts);

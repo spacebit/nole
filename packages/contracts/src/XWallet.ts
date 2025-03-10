@@ -68,7 +68,7 @@ export class XWallet {
     };
   }
 
-  async sendMessage(messageParams: SendTransactionParams) {
+  async sendTransaction(messageParams: SendTransactionParams) {
     const hexTo = refineAddress(messageParams.to);
     const hexRefundTo = refineAddress(messageParams.refundTo ?? this.address);
     const hexBounceTo = refineAddress(messageParams.bounceTo ?? this.address);
