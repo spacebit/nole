@@ -12,15 +12,19 @@ import { FaTrash } from "react-icons/fa";
 import FileUploader from "./FileUploader";
 
 const CreateNFTForm: React.FC = () => {
-  const { uploadFile, uploadMetadata, uploading } = usePinata();
+  const { uploadFile, uploadMetadata } = usePinata();
   const { collections, fetchNFTs } = useUserAssets();
   const { showLoader, hideLoader } = useLoader();
 
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCollection, setSelectedCollection] = useState<Hex | null>(null);
-  const [attributes, setAttributes] = useState<{ trait_type: string; value: string }[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState<Hex | null>(
+    null
+  );
+  const [attributes, setAttributes] = useState<
+    { trait_type: string; value: string }[]
+  >([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const collectionContract = useCollectionContract(selectedCollection as Hex);
@@ -55,7 +59,11 @@ const CreateNFTForm: React.FC = () => {
       }
 
       const tokenId = BigInt(Date.now());
-      const mintTx = await collectionContract.mintNFT(selectedCollection as Hex, tokenId, metadataUrl);
+      const mintTx = await collectionContract.mintNFT(
+        selectedCollection as Hex,
+        tokenId,
+        metadataUrl
+      );
 
       if (mintTx) {
         showLoader("NFT created successfully!", "success");
@@ -140,17 +148,27 @@ const CreateNFTForm: React.FC = () => {
                     setAttributes(updated);
                   }}
                 />
-                <button onClick={() => setAttributes(attributes.filter((_, i) => i !== index))} className="p-2 text-gray-500 hover:text-gray-800">
+                <button
+                  onClick={() =>
+                    setAttributes(attributes.filter((_, i) => i !== index))
+                  }
+                  className="p-2 text-gray-500 hover:text-gray-800"
+                >
                   <FaTrash size={16} />
                 </button>
               </div>
             ))}
-            <Button onClick={() => setAttributes([...attributes, { trait_type: "", value: "" }])} variant="secondary">
+            <Button
+              onClick={() =>
+                setAttributes([...attributes, { trait_type: "", value: "" }])
+              }
+              variant="secondary"
+            >
               Add Attribute
             </Button>
           </div>
 
-          <Button onClick={handleCreateNFT} disabled={uploading || isSubmitting}>
+          <Button onClick={handleCreateNFT} disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Create NFT"}
           </Button>
         </div>

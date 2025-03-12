@@ -11,8 +11,10 @@ import { useLoader } from "@/contexts/LoaderContext";
 import FileUploader from "./FileUploader";
 
 const CreateCollectionForm: React.FC = () => {
-  const { setUploadedUrl, uploadFile, uploadMetadata, uploading } = usePinata();
-  const { createCollection } = useCollectionRegistry(process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Hex);
+  const { uploadFile, uploadMetadata } = usePinata();
+  const { createCollection } = useCollectionRegistry(
+    process.env.NEXT_PUBLIC_REGISTRY_ADDRESS as Hex
+  );
   const { fetchUserCollections } = useUserAssets();
   const { showLoader, hideLoader } = useLoader();
 
@@ -41,7 +43,6 @@ const CreateCollectionForm: React.FC = () => {
         return;
       }
 
-      setUploadedUrl(imageUrl);
       const metadata = { name, description, image: imageUrl };
       const metadataUrl = await uploadMetadata(metadata);
       if (!metadataUrl) {
@@ -67,7 +68,18 @@ const CreateCollectionForm: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [createCollection, description, fetchUserCollections, file, name, setUploadedUrl, showLoader, symbol, uploadFile, uploadMetadata, hideLoader]);
+  }, [
+    createCollection,
+    description,
+    fetchUserCollections,
+    file,
+    name,
+    showLoader,
+    symbol,
+    uploadFile,
+    uploadMetadata,
+    hideLoader,
+  ]);
 
   return (
     <div className="flex flex-col space-y-6 p-6 bg-white rounded-xl shadow-lg w-full max-w-3xl">
@@ -100,7 +112,7 @@ const CreateCollectionForm: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-          <Button onClick={handleCreateCollection} disabled={uploading || isSubmitting}>
+          <Button onClick={handleCreateCollection} disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Create Collection"}
           </Button>
         </div>
