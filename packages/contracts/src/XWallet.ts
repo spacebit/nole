@@ -91,15 +91,15 @@ export class XWallet {
       ],
     });
 
-    return this._callWaitResult(callData);
+    return this._callWaitResult(callData, messageParams.feeCredit);
   }
 
   private async _callWaitResult(
     calldata: Hex,
-    isDeploy = false,
+    feeCredit?: bigint,
     expectSuccess = true
   ): Promise<ProcessedReceipt[]> {
-    const messageHash = await this._callExternal(calldata, isDeploy);
+    const messageHash = await this._callExternal(calldata, feeCredit);
 
     return this._waitResult(messageHash, expectSuccess);
   }
@@ -110,7 +110,7 @@ export class XWallet {
     return receipts;
   }
 
-  private async _callExternal(calldata: Hex, isDeploy = false) {
-    return this.client.sendRawMessage(this.address, calldata, isDeploy);
+  private async _callExternal(calldata: Hex, feeCredit?: bigint) {
+    return this.client.sendRawTransaction(this.address, calldata, feeCredit);
   }
 }

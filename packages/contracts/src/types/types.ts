@@ -47,7 +47,7 @@ export type Currency = {
  * Represents message tokens including fee credit, value, and optional tokens.
  */
 export type MessageTokens = {
-  feeCredit: bigint;
+  feeCredit?: bigint;
   value?: bigint;
   tokens?: Currency[];
 };

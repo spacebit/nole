@@ -56,6 +56,7 @@ contract Collection is ICollection, Ownable {
         NFT newToken = new NFT(_to, _tokenId, _tokenURI, address(this));
         s_tokens[_tokenId] = address(newToken);
         s_owners[_tokenId] = _to;
+        emit TokenMinted(address(newToken));
     }
 
     function tokenURI(uint256 _tokenId) external view returns (string memory) {

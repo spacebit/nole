@@ -10,6 +10,8 @@ contract CollectionRegistry {
     mapping(address owner => Collection[] collection) private s_collectionsOf;
     mapping(address owner => uint256) private s_collectionsAmount;
 
+    event CollectionCreated(address);
+
     function createCollection(
         string memory _collectionName,
         string memory _symbol,
@@ -18,6 +20,7 @@ contract CollectionRegistry {
         Collection newCollection = new Collection(_collectionName, _symbol, _contractURI, msg.sender);
         s_collectionsOf[msg.sender].push(newCollection);
         s_collectionsAmount[msg.sender]++;
+        emit CollectionCreated(address(newCollection));
         return newCollection;
     }
 
