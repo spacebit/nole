@@ -15,7 +15,11 @@ import { expectAllReceiptsSuccess } from "./utils";
 import { XClient } from "./XClient";
 
 export class XWallet {
-  private constructor(readonly address: Hex, readonly client: XClient, readonly smartAccount: SmartAccountV1) {}
+  private constructor(
+    readonly address: Hex,
+    readonly client: XClient,
+    readonly smartAccount: SmartAccountV1
+  ) {}
 
   static async init(config: XWalletConfig) {
     const client = new XClient({
@@ -29,7 +33,7 @@ export class XWallet {
       pubkey: client.signer!.getPublicKey(),
       signer: client.signer!,
       address: config.address,
-    })
+    });
 
     return new XWallet(config.address, client, smartAccount);
   }
@@ -52,7 +56,7 @@ export class XWallet {
   }
 
   async deployContract(params: DeployParams) {
-    const {hash, address} = await this.smartAccount.deployContract({
+    const { hash, address } = await this.smartAccount.deployContract({
       shardId: params.shardId,
       bytecode: params.bytecode,
       abi: params.abi,
@@ -105,7 +109,10 @@ export class XWallet {
   }
 
   private async _waitResult(messageHash: Hex, expectSuccess = true) {
-    const receipts = await waitTillCompleted(this.client.client, messageHash);
+    // TODO: waitTillMainShard: true makes things more predictable but much slower
+    const receipts = await waitTillCompleted(this.client.client, messageHash, {
+      waitTillMainShard: true,
+    });
     if (expectSuccess) expectAllReceiptsSuccess(receipts);
     return receipts;
   }

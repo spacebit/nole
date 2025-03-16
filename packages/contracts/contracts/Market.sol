@@ -22,18 +22,27 @@ contract Market is NilBase {
     error Market__TokensAndOrdersLengthMismatch();
     error Market__NFTAlreadyOnSale(TokenId nftId);
 
-    event OrderCreated(address indexed seller, TokenId indexed nftId, TokenId currencyId, uint256 price);
-    event Deposited(address indexed owner, TokenId indexed tokenId, uint256 amount);
+    event OrderCreated(
+        address indexed seller,
+        TokenId indexed nftId,
+        TokenId currencyId,
+        uint256 price
+    );
+    event Deposited(
+        address indexed owner,
+        TokenId indexed tokenId,
+        uint256 amount
+    );
 
     constructor() {}
 
     receive() external payable {}
 
-    function listNFT(Order[] memory _orders) public onlyInternal payable {
+    function listNFT(Order[] memory _orders) public payable onlyInternal {
         Nil.Token[] memory tokens = Nil.txnTokens();
         if (tokens.length != _orders.length) {
             revert Market__TokensAndOrdersLengthMismatch();
-        } 
+        }
 
         for (uint256 i = 0; i < _orders.length; i++) {
             Nil.Token memory attachedToken = tokens[i];
@@ -62,6 +71,10 @@ contract Market is NilBase {
         }
     }
 
+    function getOrder(TokenId _nftId) external view returns (Order memory) {
+        return s_orders[_nftId];
+    }
+
     function _deposit(
         address _owner,
         TokenId _tokenId,
@@ -74,7 +87,11 @@ contract Market is NilBase {
 
     function _assertAttachedTokenIsNFT(Nil.Token memory _token) private view {
         address nftContractAddress = TokenId.unwrap(_token.id);
-        if (!IERC165(nftContractAddress).supportsInterface(type(INFT).interfaceId)) {
+        if (
+            !IERC165(nftContractAddress).supportsInterface(
+                type(INFT).interfaceId
+            )
+        ) {
             revert Market__TokenIsNotNFT();
         }
     }

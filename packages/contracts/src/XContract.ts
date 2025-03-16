@@ -83,7 +83,6 @@ export class XContract<T extends Abi> {
       feeCredit,
       value: messageTokens?.value,
       tokens: messageTokens?.tokens,
-      
     });
 
     if (expectSuccess) expectAllReceiptsSuccess(receipts);
