@@ -3,10 +3,9 @@ import {
   type Hex,
   type ProcessedReceipt,
   type SendTransactionParams,
-  bytesToHex,
   getShardIdFromAddress,
-  refineAddress,
   SmartAccountV1,
+  Transaction,
   waitTillCompleted,
 } from "@nilfoundation/niljs";
 import { encodeFunctionData } from "viem";
@@ -56,7 +55,7 @@ export class XWallet {
   }
 
   async deployContract(params: DeployParams) {
-    const { hash, address } = await this.smartAccount.deployContract({
+    const { tx, address } = await this.smartAccount.deployContract({
       shardId: params.shardId,
       bytecode: params.bytecode,
       abi: params.abi,
@@ -64,7 +63,7 @@ export class XWallet {
       salt: params.salt,
     });
 
-    const receipts = await this._waitResult(hash, true);
+    const receipts = await this._waitResult(tx, true);
 
     return {
       receipts,
@@ -73,29 +72,9 @@ export class XWallet {
   }
 
   async sendTransaction(messageParams: SendTransactionParams) {
-    const hexTo = refineAddress(messageParams.to);
-    const hexRefundTo = refineAddress(messageParams.refundTo ?? this.address);
-    const hexBounceTo = refineAddress(messageParams.bounceTo ?? this.address);
-    const hexData = messageParams.data
-      ? messageParams.data instanceof Uint8Array
-        ? bytesToHex(messageParams.data)
-        : messageParams.data
-      : "0x";
+    const tx = await this.smartAccount.sendTransaction(messageParams);
 
-    const callData = encodeFunctionData({
-      abi: SmartAccountV1.abi,
-      functionName: "asyncCall",
-      args: [
-        hexTo,
-        hexRefundTo,
-        hexBounceTo,
-        messageParams.tokens ?? [],
-        messageParams.value ?? 0n,
-        hexData,
-      ],
-    });
-
-    return this._callWaitResult(callData, messageParams.feeCredit);
+    return this._waitResult(tx, true);
   }
 
   private async _callWaitResult(
@@ -108,11 +87,24 @@ export class XWallet {
     return this._waitResult(messageHash, expectSuccess);
   }
 
-  private async _waitResult(messageHash: Hex, expectSuccess = true) {
-    // TODO: waitTillMainShard: true makes things more predictable but much slower
+  private async _waitResult(
+    transaction: Hex,
+    expectSuccess: boolean
+  ): Promise<ProcessedReceipt[]>;
+  private async _waitResult(
+    transaction: Transaction,
+    expectSuccess: boolean
+  ): Promise<ProcessedReceipt[]>;
+  private async _waitResult(
+    transaction: Transaction | Hex,
+    expectSuccess: boolean
+  ) {
+    const messageHash =
+      transaction instanceof Transaction ? transaction.hash : transaction;
     const receipts = await waitTillCompleted(this.client.client, messageHash, {
       waitTillMainShard: true,
     });
+
     if (expectSuccess) expectAllReceiptsSuccess(receipts);
     return receipts;
   }

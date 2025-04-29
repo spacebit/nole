@@ -21,6 +21,10 @@ contract Market is NilBase {
     error Market__TokenIsNotNFT();
     error Market__TokensAndOrdersLengthMismatch();
     error Market__NFTAlreadyOnSale(TokenId nftId);
+    error Market__OrderNotFound(TokenId nftId);
+    error Market__OrderWrongCurrency(TokenId nftId);
+    error Market__OrderWrongPrice(TokenId nftId);
+    error Market__MoreThanOneTokenSent();
 
     event OrderCreated(
         address indexed seller,
@@ -28,6 +32,7 @@ contract Market is NilBase {
         TokenId currencyId,
         uint256 price
     );
+    event Buy(address buyer, TokenId);
     event Deposited(
         address indexed owner,
         TokenId indexed tokenId,
@@ -38,7 +43,7 @@ contract Market is NilBase {
 
     receive() external payable {}
 
-    function listNFT(Order[] memory _orders) public payable onlyInternal {
+    function list(Order[] memory _orders) public payable onlyInternal {
         Nil.Token[] memory tokens = Nil.txnTokens();
         if (tokens.length != _orders.length) {
             revert Market__TokensAndOrdersLengthMismatch();
@@ -71,7 +76,26 @@ contract Market is NilBase {
         }
     }
 
-    function getOrder(TokenId _nftId) external view returns (Order memory) {
+    function buy(TokenId _nft) external payable {
+        emit Buy(msg.sender, _nft);
+    }
+
+    // function buy(TokenId _nft) external payable {
+    //     Order memory order = getOrder(_nft);
+    //     if (order.price == 0) revert Market__OrderNotFound(_nft);
+
+    //     // TODO: order currency is native token branch
+
+    //     Nil.Token[] memory tokens = Nil.txnTokens();
+    //     if (tokens.length > 1) revert Market__MoreThanOneTokenSent();
+
+    //     Nil.Token memory currency = tokens[0];
+
+    //     if (order.currencyId != currency.id) revert Market__OrderWrongCurrency(_nft);
+    //     if (order.price != currency.amount) revert Market__OrderWrongPrice(_nft);
+    // }
+
+    function getOrder(TokenId _nftId) public view returns (Order memory) {
         return s_orders[_nftId];
     }
 
