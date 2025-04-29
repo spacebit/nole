@@ -1,9 +1,6 @@
 import { expect } from "chai";
 import { it } from "mocha";
 import { artifacts } from "hardhat";
-import { LocalECDSAKeySigner } from "@nilfoundation/niljs";
-import config from "../utils/config";
-import { XWallet } from "../src/XWallet";
 import { XContract } from "../src/XContract";
 import { parseEther } from "viem";
 import { initializeNil } from "./helpers/init";
@@ -12,7 +9,7 @@ it("Should create a collection registry", async () => {
   const SHARD_ID = 1;
   const registryArtifacts = await artifacts.readArtifact("CollectionRegistry");
 
-  const {wallet} = await initializeNil();
+  const wallet = await initializeNil();
 
   const registry = await XContract.deploy(
     wallet,
@@ -28,20 +25,22 @@ it("Should create a collection registry", async () => {
   expect(collectionsAmount).to.eq(0n);
 
   // Can create a collection
-  await registry.sendTransaction(
+  const createCollectionReceipts1 = await registry.sendTransaction(
     {
       functionName: "createCollection",
       args: ["Collections", "COL", "http://xxx"],
     },
-    { feeCredit: parseEther("10000", "gwei") }
+    { feeCredit: parseEther("100000", "gwei") }
   );
 
-  await registry.sendTransaction(
+  console.log(createCollectionReceipts1.reduce((prev, curr) => prev + curr.gasUsed, 0n))
+
+  const createCollectionReceipts2 = await registry.sendTransaction(
     {
       functionName: "createCollection",
       args: ["Collections", "COL", "http://yyy"],
     },
-    { feeCredit: parseEther("10000", "gwei") }
+    { feeCredit: parseEther("100000", "gwei") }
   );
 
   collectionsAmount = await registry.call({

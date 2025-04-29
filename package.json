@@ -13,6 +13,6 @@
   "license": "ISC",
   "packageManager": "pnpm@9.6.0+sha1.65cd48c20dd329b7f455088b6dd17d4d5b6d02e3",
   "dependencies": {
-    "@nilfoundation/niljs": "^0.24.0"
+    "@nilfoundation/niljs": "0.26.0"
   }
 }

@@ -1,4 +1,4 @@
-import { isHexString } from '@nilfoundation/niljs';
+import { Hex, isHexString } from '@nilfoundation/niljs';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,11 +8,16 @@ const getConfig = () => {
   if (!SMART_ACCOUNT || !PRIVATE_KEY || !RPC)
     throw Error("Did you forget to set .env?");
 
-  if (!isHexString(SMART_ACCOUNT) || !isHexString(PRIVATE_KEY)) 
-    throw Error("SMART_ACCOUNT and PRIVATE_KEY envs should start with 0x")
+  const accounts = SMART_ACCOUNT.split(',');
+  accounts.forEach(a => {
+    if (!isHexString(a)) throw Error("SMART_ACCOUNT should start with 0x")
+  })
+
+  if (!isHexString(PRIVATE_KEY)) 
+    throw Error("PRIVATE_KEY env should start with 0x")
 
   return {
-    walletAddress: SMART_ACCOUNT,
+    wallets: accounts as Hex[],
     privateKey: PRIVATE_KEY,
     rpc: RPC,
   };

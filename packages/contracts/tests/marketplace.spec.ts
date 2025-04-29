@@ -8,29 +8,49 @@ import {
   deployMarket,
 } from "./helpers/deploy";
 import { expect } from "chai";
+import { XContract } from "../src/XContract";
+import {
+  CollectionXContract,
+  MarketXContract,
+  NFTXContract,
+} from "../utils/artifacts";
+import config from "../utils/config";
+import { XWallet } from "../src/XWallet";
+import { expectTokenBelongsTo } from "./helpers/expect";
 
-describe("Market::listNFT", () => {
+describe("Market", () => {
+  const SHARD_ID = 2;
+  const PRICE = 144n;
+
+  let seller: XWallet;
+  let buyer: XWallet;
+  let market: MarketXContract;
+  let collection: CollectionXContract;
+  let nft: NFTXContract;
+
   it("Should send NFT token to the Escrow, create an Order and increase virtual balance", async () => {
-    const SHARD_ID = 2;
-    const PRICE = 144n;
-    const { wallet } = await initializeNil();
+    seller = await initializeNil(config.wallets[0]);
+    buyer = await initializeNil(config.wallets[1]);
 
-    const market = await deployMarket(wallet, SHARD_ID);
-    const registry = await deployCollectionRegistry(wallet, SHARD_ID);
+    console.log(await seller.client.client.getBalance(seller.address));
+    console.log(await seller.client.client.getBalance(buyer.address));
 
-    const collection = await createCollection(
+    market = await deployMarket(seller, SHARD_ID);
+    const registry = await deployCollectionRegistry(seller, SHARD_ID);
+
+    collection = await createCollection(
       registry,
       "Name",
       "SYM",
       "Contract URI:" + Date.now()
     );
-    const nft = await createNFT(collection, wallet.address, 1n);
+    nft = await createNFT(collection, seller.address, 1n);
 
     // ACT
 
     const listTx = await market.sendTransaction(
       {
-        functionName: "listNFT",
+        functionName: "list",
         args: [[{ nftId: nft.address, currencyId: zeroAddress, price: PRICE }]],
       },
       {
@@ -51,7 +71,22 @@ describe("Market::listNFT", () => {
     expect(order?.price).eq(PRICE);
 
     // Expect NFT transferred to the escrow
-    const marketCurrencies = await wallet.client.getCurrencies(market.address);
-    expect(marketCurrencies).has.property(nft.address).eq(1n);
+    await expectTokenBelongsTo({ nft: nft.address, owner: market.address });
+  });
+
+  it("Should buy NFT by sending correct amount of tokens", async () => {
+    const buyTx = await market.connect(buyer).sendTransaction(
+      {
+        functionName: "buy",
+        args: [nft.address],
+      },
+      {
+        feeCredit: 10n ** 15n,
+        value: PRICE,
+      }
+    );
+
+    // TODO:
+    // await expectTokenBelongsTo({ nft: nft.address, owner: buyer.address });
   });
 });
