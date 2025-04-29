@@ -7,7 +7,7 @@ import {ICollection} from "./interfaces/ICollection.sol";
 import {INFT} from "./interfaces/INFT.sol";
 import {IERC165} from "./interfaces/IERC165.sol";
 
-// Interface id: 636f6c6c
+// Interface id: 0x4164019d
 contract NFT is INFT, NilTokenBase {
     address private s_collectionAddress;
     uint256 private s_tokenId;

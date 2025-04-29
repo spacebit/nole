@@ -6,18 +6,13 @@ import config from "../utils/config";
 import { XWallet } from "../src/XWallet";
 import { XContract } from "../src/XContract";
 import { parseEther } from "viem";
+import { initializeNil } from "./helpers/init";
 
 it("Should create a collection registry", async () => {
   const SHARD_ID = 1;
   const registryArtifacts = await artifacts.readArtifact("CollectionRegistry");
 
-  const signer = new LocalECDSAKeySigner({ privateKey: config.privateKey });
-
-  const wallet = await XWallet.init({
-    address: config.walletAddress,
-    rpc: config.rpc,
-    signerOrPrivateKey: signer,
-  });
+  const {wallet} = await initializeNil();
 
   const registry = await XContract.deploy(
     wallet,
@@ -33,7 +28,7 @@ it("Should create a collection registry", async () => {
   expect(collectionsAmount).to.eq(0n);
 
   // Can create a collection
-  await registry.sendMessage(
+  await registry.sendTransaction(
     {
       functionName: "createCollection",
       args: ["Collections", "COL", "http://xxx"],
@@ -41,7 +36,7 @@ it("Should create a collection registry", async () => {
     { feeCredit: parseEther("10000", "gwei") }
   );
 
-  await registry.sendMessage(
+  await registry.sendTransaction(
     {
       functionName: "createCollection",
       args: ["Collections", "COL", "http://yyy"],

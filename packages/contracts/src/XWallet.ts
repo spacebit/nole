@@ -15,7 +15,11 @@ import { expectAllReceiptsSuccess } from "./utils";
 import { XClient } from "./XClient";
 
 export class XWallet {
-  private constructor(readonly address: Hex, readonly client: XClient, readonly smartAccount: SmartAccountV1) {}
+  private constructor(
+    readonly address: Hex,
+    readonly client: XClient,
+    readonly smartAccount: SmartAccountV1
+  ) {}
 
   static async init(config: XWalletConfig) {
     const client = new XClient({
@@ -29,7 +33,7 @@ export class XWallet {
       pubkey: client.signer!.getPublicKey(),
       signer: client.signer!,
       address: config.address,
-    })
+    });
 
     return new XWallet(config.address, client, smartAccount);
   }
@@ -52,7 +56,7 @@ export class XWallet {
   }
 
   async deployContract(params: DeployParams) {
-    const {hash, address} = await this.smartAccount.deployContract({
+    const { hash, address } = await this.smartAccount.deployContract({
       shardId: params.shardId,
       bytecode: params.bytecode,
       abi: params.abi,
@@ -68,7 +72,7 @@ export class XWallet {
     };
   }
 
-  async sendMessage(messageParams: SendTransactionParams) {
+  async sendTransaction(messageParams: SendTransactionParams) {
     const hexTo = refineAddress(messageParams.to);
     const hexRefundTo = refineAddress(messageParams.refundTo ?? this.address);
     const hexBounceTo = refineAddress(messageParams.bounceTo ?? this.address);
@@ -91,26 +95,29 @@ export class XWallet {
       ],
     });
 
-    return this._callWaitResult(callData);
+    return this._callWaitResult(callData, messageParams.feeCredit);
   }
 
   private async _callWaitResult(
     calldata: Hex,
-    isDeploy = false,
+    feeCredit?: bigint,
     expectSuccess = true
   ): Promise<ProcessedReceipt[]> {
-    const messageHash = await this._callExternal(calldata, isDeploy);
+    const messageHash = await this._callExternal(calldata, feeCredit);
 
     return this._waitResult(messageHash, expectSuccess);
   }
 
   private async _waitResult(messageHash: Hex, expectSuccess = true) {
-    const receipts = await waitTillCompleted(this.client.client, messageHash);
+    // TODO: waitTillMainShard: true makes things more predictable but much slower
+    const receipts = await waitTillCompleted(this.client.client, messageHash, {
+      waitTillMainShard: true,
+    });
     if (expectSuccess) expectAllReceiptsSuccess(receipts);
     return receipts;
   }
 
-  private async _callExternal(calldata: Hex, isDeploy = false) {
-    return this.client.sendRawMessage(this.address, calldata, isDeploy);
+  private async _callExternal(calldata: Hex, feeCredit?: bigint) {
+    return this.client.sendRawTransaction(this.address, calldata, feeCredit);
   }
 }

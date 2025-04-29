@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 interface ICollection {
-    event CollectionCreated(address);
+    event TokenMinted(address);
 
     error Collection__AlreadyMinted(uint256 nft);
     error Collection__NonexistentToken(uint256 nft);

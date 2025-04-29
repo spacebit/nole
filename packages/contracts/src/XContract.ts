@@ -1,4 +1,4 @@
-import { type Hex } from "@nilfoundation/niljs";
+import { toHex, type Hex } from "@nilfoundation/niljs";
 import {
   type Abi,
   type ContractConstructorArgs,
@@ -13,7 +13,7 @@ import { expectAllReceiptsSuccess } from "./utils/receipt";
 import { XWallet } from "./XWallet";
 
 export class XContract<T extends Abi> {
-  constructor(private abi: T, private wallet: XWallet, public address: Hex) {}
+  constructor(private abi: T, readonly wallet: XWallet, public address: Hex) {}
 
   static connect<T extends Abi>(
     wallet: XWallet,
@@ -48,22 +48,41 @@ export class XContract<T extends Abi> {
     return new XContract(this.abi, wallet, this.address);
   }
 
-  async sendMessage<functionName extends ContractFunctionName<T>>(
+  async sendTransaction<functionName extends ContractFunctionName<T>>(
     params: Omit<EncodeFunctionDataParameters<T, functionName>, "abi">,
-    messageTokens: MessageTokens,
+    messageTokens?: MessageTokens,
     expectSuccess = true
   ) {
-    const receipts = await this.wallet.sendMessage({
+    const encodedData = encodeFunctionData({
+      abi: this.abi as any,
+      functionName: params.functionName,
+      args: params.args as any,
+    });
+  
+    let feeCredit = messageTokens?.feeCredit;
+
+    // if (!messageTokens?.feeCredit) {
+    //   const gasEstimation = await this.wallet.client.estimateGas({
+    //     to: this.address,
+    //     from: this.wallet.address,
+    //     data: encodedData,
+    //     value: messageTokens?.value ?? 0n,
+    //     feeCredit: 0n,
+    //   }, 'latest')
+
+    //   feeCredit = gasEstimation.feeCredit;
+    // }
+
+    const receipts = await this.wallet.sendTransaction({
       to: this.address,
-      feeCredit: messageTokens.feeCredit,
-      value: messageTokens.value,
-      tokens: messageTokens.tokens,
       data: encodeFunctionData({
         abi: this.abi as any,
         functionName: params.functionName,
         args: params.args as any,
       }),
-
+      feeCredit,
+      value: messageTokens?.value,
+      tokens: messageTokens?.tokens,
     });
 
     if (expectSuccess) expectAllReceiptsSuccess(receipts);
