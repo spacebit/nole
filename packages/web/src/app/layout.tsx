@@ -22,8 +22,29 @@ const unbounded = Unbounded({
 });
 
 export const metadata: Metadata = {
-  title: "Nole Marketplace",
-  description: "NFT marketplace on =nil;",
+  title: "Nole | Build, Own, Trade. Just Vibe.",
+  description: "Create, mint, and swap NFTs and tokens with style.",
+  openGraph: {
+    title: "Nole Marketplace",
+    description: "Create, mint, and swap NFTs and tokens with style",
+    url: "https://nole.market", // TODO: update
+    siteName: "Nole Marketplace",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nole Preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nole | Build, Own, Trade. Just Vibe.",
+    description: "A launchpad for digital assets",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
