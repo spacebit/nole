@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="w-full bg-neutral-800 text-white py-6 mt-auto">
       <div className="container mx-auto flex justify-center space-x-6">
         <a
-          href="https://t.me/andreevmaks"
+          href="https://t.me/crypto_nole"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-blue-200 transition-colors"
@@ -15,7 +15,7 @@ const Footer = () => {
           <FaTelegramPlane size={28} />
         </a>
         <a
-          href="https://github.com/Maksandre/nole-nfts"
+          href="https://github.com/spacebit"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-blue-200 transition-colors"
@@ -23,7 +23,7 @@ const Footer = () => {
           <FaGithub size={28} />
         </a>
         <a
-          href="https://linkedin.com/in/maxick"
+          href="https://www.linkedin.com/company/spacebit-crypto"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-blue-200 transition-colors"

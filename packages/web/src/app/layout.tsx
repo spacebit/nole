@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import {  Unbounded, JetBrains_Mono, Inter } from "next/font/google";
+import {  Unbounded, Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Header from "@/components/modules/Header";
 import Footer from "@/components/modules/Footer";
 
-const inter = Inter({
-  variable: "--font-inter",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
 });
 
@@ -14,7 +14,6 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
-
 
 const unbounded = Unbounded({
   variable: "--font-unbounded",
@@ -33,12 +32,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jetbrainsMono.variable} ${inter.variable} ${unbounded.variable}`}>
+    <html lang="en" className={`${jetbrainsMono.variable} ${sora.variable} ${unbounded.variable}`}>
       <body className="antialiased">
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="container mx-auto pt-16">{children}</main>
+            <main className="pt-16">{children}</main>
             <Footer />
           </div>
         </Providers>
