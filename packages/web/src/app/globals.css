@@ -10,7 +10,7 @@
   --color-danger: #ef4444;
   --color-danger-hover: #dc2626;
 
-  --font-body: var(--font-jetbrains-mono), sans-serif;
+  --font-body: var(--font-sora), sans-serif;
   --font-heading: var(--font-unbounded), sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
 
@@ -76,4 +76,158 @@ code, .mono {
   border-color: currentColor;
   width: 1rem;
   height: 1rem;
+}
+
+@keyframes thunderFlash1 {
+  0%, 97%, 100% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.15;
+  }
+  21%, 23% {
+    opacity: 0.6;
+  }
+  24% {
+    opacity: 0.1;
+  }
+}
+
+@keyframes thunderFlash2 {
+  0%, 98%, 100% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.1;
+  }
+  11%, 13% {
+    opacity: 0.4;
+  }
+  14% {
+    opacity: 0.05;
+  }
+}
+
+@keyframes flickerGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  }
+  45% {
+    text-shadow: 0 0 5px #0ff;
+  }
+  48% {
+    text-shadow: 0 0 25px #0ff, 0 0 40px #0ff;
+  }
+  52% {
+    text-shadow: 0 0 15px #0ff;
+  }
+  70% {
+    text-shadow: 0 0 8px #0ff;
+  }
+}
+
+.flicker-glow {
+  animation: flickerGlow 4s infinite ease-in-out;
+}
+
+.animate-thunder-flash-1 {
+  animation: thunderFlash1 7s infinite ease-in-out;
+}
+
+.animate-thunder-flash-2 {
+  animation: thunderFlash2 9s infinite ease-in-out;
+}
+
+.thunder-image {
+  filter: drop-shadow(0 0 8px #0ff) drop-shadow(0 0 20px #0ff);
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* HERO */
+
+@keyframes fadeBlob1 {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateY(-20px) scale(1.1);
+  }
+}
+
+@keyframes fadeBlob2 {
+  0%, 100% {
+    opacity: 0.2;
+    transform: translateX(0px) scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: translateX(30px) scale(1.05);
+  }
+}
+
+@keyframes fadeBlob3 {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.15);
+  }
+}
+
+.animate-fadeBlob1 {
+  animation: fadeBlob1 6s ease-in-out infinite;
+}
+
+.animate-fadeBlob2 {
+  animation: fadeBlob2 8s ease-in-out infinite;
+}
+
+.animate-fadeBlob3 {
+  animation: fadeBlob3 10s ease-in-out infinite;
+}
+@keyframes blobMove1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(30px, -50px) scale(1.05); }
+  50%  { transform: translate(-20px, 20px) scale(0.95); }
+  75%  { transform: translate(-40px, -10px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes blobMove2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(-50px, 40px) scale(0.95); }
+  50%  { transform: translate(20px, -30px) scale(1.1); }
+  75%  { transform: translate(40px, 10px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes blobMove3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(10px, 30px) scale(1.05); }
+  50%  { transform: translate(-30px, -20px) scale(0.9); }
+  75%  { transform: translate(50px, 40px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-blob-move-1 {
+  top: 10%;
+  left: 10%;
+  animation: blobMove1 18s ease-in-out infinite;
+}
+
+.animate-blob-move-2 {
+  bottom: 5%;
+  right: 5%;
+  animation: blobMove2 22s ease-in-out infinite;
+}
+
+.animate-blob-move-3 {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blobMove3 20s ease-in-out infinite;
 }

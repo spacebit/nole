@@ -23,7 +23,7 @@ const Header: React.FC = () => {
 
       {/* Menu */}
       <nav className="flex-1 flex justify-center space-x-6 text-lg font-bold">
-        <Link href="/" className="text-gray-800 hover:text-black">
+        <Link href="/app" className="text-gray-800 hover:text-black">
           Minter
         </Link>
         <span className="text-gray-400 cursor-not-allowed">Market (soon)</span>
